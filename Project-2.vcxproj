@@ -140,6 +140,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Project-2.c" />
+    <ClCompile Include="rendering.c" />
+    <ClCompile Include="saves.c" />
+    <ClCompile Include="editor.c" />
+    <ClCompile Include="simulation.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="editor.h" />
+    <ClInclude Include="rendering.h" />
+    <ClInclude Include="saves.h" />
+    <ClInclude Include="simulation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

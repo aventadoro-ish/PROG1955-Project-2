@@ -18,5 +18,31 @@
     <ClCompile Include="Project-2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rendering.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="saves.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="editor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simulation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="editor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="saves.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
