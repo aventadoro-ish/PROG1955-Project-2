@@ -1,9 +1,13 @@
+#define CELL_ALIVE '#'
+#define CELL_DEAD '\''
+
+#include "Project-2.h"
+
 #ifndef FUNCTIONS_H_INCLUDED
 #define FUNCTIONS_H_INCLUDED
-/* ^^ these are the include guards */
 
-/* Prototypes for the functions */
-/* Sums two ints */
-int sum(int a, int b);
+void drawBoard(unsigned long long int board[], unsigned int size,
+                struct Coord* boardDimensions, struct Coord* offset);
+
 
 #endif

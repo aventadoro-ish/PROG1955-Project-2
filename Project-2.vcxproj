@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="editor.h" />
+    <ClInclude Include="Project-2.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="saves.h" />
     <ClInclude Include="simulation.h" />
