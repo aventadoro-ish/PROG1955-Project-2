@@ -1,4 +1,8 @@
 #include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <windows.h> // notice this! you need it! (windows)
+
 
 #ifndef UTILS_H
 #define UTILS_H
