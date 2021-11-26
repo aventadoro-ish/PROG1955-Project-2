@@ -1,6 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <conio.h>
 #include "Project-2.h"
+#include "utils.h"
+#include <windows.h> // notice this! you need it! (windows)
 #include "rendering.h"
 #include "simulation.h"
 #include "saves.h"
@@ -8,61 +10,39 @@
 
 
 
-
-Coord *cellIdxToCoord(unsigned int cellIdx, Coord* boardDimesions) {
-	Coord *res = (Coord*) malloc(sizeof(Coord));
-	res->x = cellIdx % boardDimesions->x;
-	res->y = cellIdx / boardDimesions->y;
-	
-	return res;
-}
-
-
-void fill(unsigned long long int board[], Coord *boardDimensions) {
-	unsigned long long int value = 1;
-	unsigned long long int cellNum = 0;
-	
-	for (unsigned long long int y = 0; y < boardDimensions->y; y++) {
-		//cellNum += (unsigned long long int)(boardDimensions->x) - 1;
-
-		unsigned int maskOffset = cellNum % (8 * sizeof(board[0]));
-		unsigned int boardIdx = cellNum / (8 * sizeof(board[0]));
-
-
-
-		Coord* crd = cellIdxToCoord(cellNum, boardDimensions);
-
-		board[boardIdx] = 0;//value;
-		value = value << 1;
-		
-		printf("*c=%04llu, idx=%02u, board[idx]=%llu\n", cellNum, boardIdx, board[boardIdx]);
-		
-		cellNum += boardDimensions->x;
-
-
-	}
-}
-
 int main() {
-	Coord dim = { .x = 50, .y = 4 };
-	unsigned long long int cellsTotal = dim.x * dim.y;
+	printf("Press any button...");
+	while (!_kbhit());
+	_getch();
 
-	unsigned int arrSize = (cellsTotal + (64 - 1)) / 64;//(sizeof(unsigned long long int) * 8);
+	Board_t* board = createBoard();
+	fillChess(board);
+	enterEditorMode(board);
 
-	//unsigned long long board[32] = { 0, 1, 2, 4, 8, 16, 32, 64, 128, 256 };
-	unsigned long long int* board = malloc(sizeof(unsigned long long int) * arrSize);
-	//unsigned long long board[arrSize];
-	unsigned int width = 64;
-	Coord boardDimensions = { .x = width, .y = sizeof(board) * sizeof(board[0]) / width};
+	//tempEditingMode();
 
-	fill(board, &dim);
-	Coord boardPosition = {.x = 16, .y = 16};
-	printf("*dim=(%2d,%2d), arrsize=%u\n", dim.x, dim.y, arrSize);
-	drawBoard(board, arrSize, &dim, &boardPosition);
+	//Tuple2_t dim = { .x = 9, .y = 5 };
+	//board_t* board = createBoard(dim);
+	//board_t* boardB = createBoard(dim);
 
+
+	//fillZero(board, dim);
+	////fillDiagonal(board, dim);
+	//fillChess(board, dim);
+
+	//fillZero(boardB, dim);
+
+
+	//Tuple2_t boardPosition = {.x = 16, .y = 16};
+	//printf("*dim=(%2d,%2d)\n", dim.x, dim.y);
+	//simOneStep(board, dim, boardB);
+	//drawBoard(board, &dim, &boardPosition);
+	//Sleep(2000); // format is Sleep(x); where x is # of milliseconds.
+	//sleep(1);
 	//for (;;) {
 	//	// main loop goes here
 	//}
+	//drawBoard(boardB, &dim, &boardPosition);
 
 	return 0;
 }
@@ -72,3 +52,4 @@ void sim_step(unsigned short int *board, unsigned int rows) {
 		printf("*\n");
 	}
 }
+

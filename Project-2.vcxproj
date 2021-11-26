@@ -144,9 +144,11 @@
     <ClCompile Include="saves.c" />
     <ClCompile Include="editor.c" />
     <ClCompile Include="simulation.c" />
+    <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="editor.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="Project-2.h" />
     <ClInclude Include="rendering.h" />
     <ClInclude Include="saves.h" />

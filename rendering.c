@@ -2,49 +2,99 @@
    to avoid repeating the prototypes */
 #include "rendering.h"
 #include <stdio.h>
+#include "utils.h"
+
+#ifdef _WIN32
+#define  _CRT_SECURE_NO_WARNINGS 1
+#include <windows.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+
+// https://github.com/sol-prog/ansi-escape-codes-windows-posix-terminals-c-programming-examples/blob/master/ansi_escapes.c
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING  0x0004
+#endif
+
+static HANDLE stdoutHandle, stdinHandle;
+static DWORD outModeInit, inModeInit;
+
+void setupConsole(void) {
+    DWORD outMode = 0, inMode = 0;
+    stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    stdinHandle = GetStdHandle(STD_INPUT_HANDLE);
+
+    if (stdoutHandle == INVALID_HANDLE_VALUE || stdinHandle == INVALID_HANDLE_VALUE) {
+        exit(GetLastError());
+    }
+
+    if (!GetConsoleMode(stdoutHandle, &outMode) || !GetConsoleMode(stdinHandle, &inMode)) {
+        exit(GetLastError());
+    }
+
+    outModeInit = outMode;
+    inModeInit = inMode;
+
+    // Enable ANSI escape codes
+    outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+    // Set stdin as no echo and unbuffered
+    inMode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+
+    if (!SetConsoleMode(stdoutHandle, outMode) || !SetConsoleMode(stdinHandle, inMode)) {
+        exit(GetLastError());
+    }
+}
 
 
 
-
-void drawBoard(unsigned long long int board[], unsigned int size,
-                Coord *boardDimensions, Coord *offset) {
-    /* Draws a game-board board[] of size boardDimensions to console
-     *   with an offset by ofset
-     */
-
-    //char* line[] = malloc(boardDimensions->x);
+/* Draws a game-board board[] of size boardDimensions to console with an offset by ofset
+ */
+void drawBoard(const Board_t* b) {
     char line[128];
-    //printf("board Dimensions = (%d, %d)\n", boardDimensions->x, boardDimensions->y);
 
     unsigned long long int cellNum = 0;
     
     // save coursor position and move it to offset
     printf("\x1B[s");
-    printf("\x1B[%d;%dH\n", offset->y, offset->x);
+    printf("\x1B[%d;%dH", OFFSET_Y, OFFSET_X);
     //printf("\x1B[%dG\n", offset->x);
 
 
-    for (unsigned long long int y = 0; y < boardDimensions->y; y++) {
-        // TODO: redo hacky way of offsetting x
-        printf("%*c", offset->x-1, ' '); 
-
-        for (unsigned long long int x = boardDimensions->x; x > 0 ; x--) {
-            unsigned int maskOffset = cellNum % (8 * sizeof(board[0]));
-            unsigned int boardIdx = cellNum / (8 * sizeof(board[0]));
+    for (unsigned int y = 0; y < BOARD_ROWS; y++) {
+        printf("\x1B[%d;%dH", OFFSET_Y + y, OFFSET_X);
+        for (unsigned int x = BOARD_COLS; x > 0 ; x--) {
+            unsigned int maskOffset = cellNum % (8 * sizeof(unsigned int));
+            unsigned int boardIdx = cellNum / (8 * sizeof(unsigned int));
             //printf("(%02d,%02d) c=%04llu, MO=%02u, idx=%u, board[idx]=%llu\n", 
                 //(int)x, (int)y, cellNum, maskOffset, boardIdx, board[boardIdx]);
             
             unsigned long long int mask = (unsigned long long int)1 << maskOffset;
-            char bit = (board[boardIdx] & mask) > 0 ? CELL_ALIVE : CELL_DEAD;
+            char bit = (b->boardArr[boardIdx] & mask) > 0 ? CELL_ALIVE : CELL_DEAD;
             line[x-1] = bit;
             printf("%c", bit);
             ++cellNum;
         }
         printf("\n");
-        //printf("%.*s\n", 32, line);
     }
 
     printf("\x1B[u");
+    
+}
+
+void drawCursour(const Tuple2_t* coord) {
+    // save coursor position and move it to offset
+    //printf("\x1B[s");
+    printf("\x1B[%d;%dH", coord->y + 1, coord->x + 1);
+
 
     
+    //printf("\x1B[%dC", coord->y); // this works
+
+
+    //printf("_");
+
+    //printf("\x1B[u");
+
 }
