@@ -1,9 +1,12 @@
-#define board_t_depr unsigned long long int
+#include "utils.h"
 
-#define cellIdxToCoord(cellIdx) Tuple2_t coord = {coord.y = cellId / dim.x, coord.x = cellId - coord.y * dim.x}
+#include "rendering.h"
+#include "simulation.h"
+#include "saves.h"
+#include "editor.h"
 
-#ifndef FUNCTIONS_H_INCLUDED
-#define FUNCTIONS_H_INCLUDED
+#ifndef MAIN_H_
+#define MAIN_H_
 
 #endif
 

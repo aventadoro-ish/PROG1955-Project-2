@@ -1,53 +1,46 @@
 #include "simulation.h"
 
-int getCell(board_t_depr* board, Tuple2_t dim, int x, int y) {
-	Tuple2_t coord = { x, y };
-	unsigned long long int cellIdx = coordToCellIdx(coord, dim);
+int getNeighbours(const Board_t* b, int x, int y) {
+	int n = 0;
+	n += getCellInts(b, x - 1, y - 1);
+	n += getCellInts(b, x    , y - 1);
+	n += getCellInts(b, x + 1, y - 1);
 
-	unsigned int idx = cellIdx / (sizeof(board_t_depr) * 8);
-	unsigned int bitPos = cellIdx % (sizeof(board_t_depr) * 8);
-	return board[idx] & ((unsigned long long int) 1 << bitPos) > 0;
+	n += getCellInts(b, x + 1, y);
+	n += getCellInts(b, x - 1, y);
 
+	n += getCellInts(b, x - 1, y + 1);
+	n += getCellInts(b, x    , y + 1);
+	n += getCellInts(b, x + 1, y + 1);
+
+	return n;
 }
 
-void setCell(board_t_depr* board, Tuple2_t dim, int x, int y) {
-	Tuple2_t coord = { x, y };
-	unsigned long long int cellIdx = coordToCellIdx(coord, dim);
+int simStep(Board_t* board, Board_t* cpy) {
+	// TOOD proper borders
+	for (int y = 1; y < BOARD_ROWS - 1; y++) {
+		for (int x = 1; x < BOARD_COLS - 1; x++) {
+			int neighbours = getNeighbours(board, x, y);
 
-	unsigned int idx = cellIdx / (sizeof(board_t_depr) * 8);
-	unsigned int bitPos = cellIdx % (sizeof(board_t_depr) * 8);
+			//if (getCellInts(board, x, y)) {
+			//	if (!(neighbours == 2 || neighbours == 3)) setCellInts(cpy, x, y, 0);
+			//} else {
+			//	if (neighbours == 3) setCellInts(cpy, x, y, 1);
+			//}
 
-	board[idx] = board[idx] | ((unsigned long long int) 1 << bitPos);
+			if (getCellInts(board, x, y)) {
+				if (neighbours < 2) setCellInts(cpy, x, y, 0); // 1.
+				else if (neighbours == 2 || neighbours == 3) setCellInts(cpy, x, y, 1); // 2.
+				else if (neighbours > 3) setCellInts(cpy, x, y, 0); // 3.
 
-}
-
-int countNeighbours(board_t_depr* board, Tuple2_t dim, Tuple2_t coord) {
-	int count = 0;
-	count += getCell(board, dim, coord.x + 1, coord.y + 1);
-	count += getCell(board, dim, coord.x    , coord.y + 1);
-	count += getCell(board, dim, coord.x - 1, coord.y + 1);
-
-	count += getCell(board, dim, coord.x + 1, coord.y + 1);
-	count += getCell(board, dim, coord.x + 1, coord.y + 1);
-
-	count += getCell(board, dim, coord.x + 1, coord.y - 1);
-	count += getCell(board, dim, coord.x    , coord.y - 1);
-	count += getCell(board, dim, coord.x + 1, coord.y - 1);
-
-	return count;
-
-
-}
-
-void simOneStep(board_t_depr* board, Tuple2_t dim, board_t_depr* res) {
-	for (int y = 0; y < dim.y; y++) {
-		for (int x = dim.x; x >= 0; x--) {
-			Tuple2_t coord = { x, y };
-			int count = countNeighbours(board, dim, coord);
-			printf("%2d|", count);
-			if (count < 2) {
-				setCell(res, dim, x, y);
+			} else {
+				if (neighbours == 3) setCellInts(cpy, x, y, 1); // 4.
 			}
+
 		}
 	}
+
+	return 0;
 }
+
+

@@ -1,29 +1,51 @@
-#include <stdio.h>
-#include <conio.h>
+
 #include "Project-2.h"
-#include "utils.h"
-#include <windows.h> // notice this! you need it! (windows)
-#include "rendering.h"
-#include "simulation.h"
-#include "saves.h"
-#include "editor.h"
 
 
+/*
+ */
 
 int main() {
 	printf("Press any button...");
 	while (!_kbhit());
 	_getch();
 
+
+	Tuple2_t pos = {OFFSET_X - 1, OFFSET_Y - 1};
+	Tuple2_t dim = {BOARD_COLS + 2, BOARD_ROWS + 2};
+
+	drawFrame(&pos, &dim, 0);
+	
 	Board_t* board = createBoard();
-	fillChess(board);
+	Board_t* boardB = createBoard();
+
+	fillZero(board);
+	fillZero(boardB);
+
+	//drawBoard(board);
 	enterEditorMode(board);
 
-	//tempEditingMode();
 
-	//Tuple2_t dim = { .x = 9, .y = 5 };
-	//board_t* board = createBoard(dim);
-	//board_t* boardB = createBoard(dim);
+	for (;;) {
+		simStep(board, boardB);
+		drawBoard(boardB);
+		fillZero(board);
+
+		Sleep(500);
+
+		simStep(boardB, board);
+		drawBoard(board);
+		fillZero(boardB);
+
+		Sleep(500);
+
+	}
+
+	
+
+	moveCursour(&dim);
+
+	
 
 
 	//fillZero(board, dim);

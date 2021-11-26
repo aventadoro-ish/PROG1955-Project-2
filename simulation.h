@@ -1,7 +1,11 @@
-#include "Project-2.h"
+#include "utils.h"
+#include "editor.h"
 
 
-#ifndef FUNCTIONS_H_INCLUDED
-#define FUNCTIONS_H_INCLUDED
+#ifndef SIMULATION_H_
+#define SIMULATION_H_
+
+int getNeighbours(const Board_t* b, int x, int y);
+int simStep(Board_t* board, Board_t* cpy);
 
 #endif
