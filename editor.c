@@ -37,16 +37,7 @@ void fillChess(Board_t* b) {
 }
 
 void fillDiagonal(unsigned long long int board[], Tuple2_t dim) {
-	int iters = dim.x < dim.y ? dim.x : dim.y;
-
-	for (int i = 0; i < iters; i++) {
-		Tuple2_t coord = { i, i };
-		unsigned int cid = coordToCellIdx(coord);
-		unsigned int idx = cid / (sizeof(board_t_depr) * 8);
-		unsigned int bitPos = cid % (sizeof(board_t_depr) * 8);
-
-		board[idx] = board[idx] | ((board_t_depr)1 << bitPos);
-	}
+	// TODO
 
 	
 }

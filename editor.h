@@ -1,4 +1,3 @@
-#include "Project-2.h"
 #include "rendering.h"
 #include "utils.h"
 #include <stdlib.h>

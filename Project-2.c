@@ -1,14 +1,9 @@
-#include <stdio.h>
-#include <conio.h>
+
 #include "Project-2.h"
-#include "utils.h"
-#include <windows.h> // notice this! you need it! (windows)
-#include "rendering.h"
-#include "simulation.h"
-#include "saves.h"
-#include "editor.h"
 
 
+/*
+ */
 
 int main() {
 	printf("Press any button...");

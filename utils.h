@@ -9,6 +9,8 @@
 #define FILENAME_MAX_LEN 64
 
 #define coordToCellIdx(coord) (unsigned int)coord.y * BOARD_COLS + coord.x
+#define cellIdxToCoord(cellIdx) Tuple2_t coord = {coord.y = cellId / dim.x, coord.x = cellId - coord.y * dim.x}
+
 
 typedef struct Tuple2_t {
 	int x;

@@ -4,50 +4,6 @@
 #include <stdio.h>
 #include "utils.h"
 
-#ifdef _WIN32
-#define  _CRT_SECURE_NO_WARNINGS 1
-#include <windows.h>
-#else
-#include <termios.h>
-#include <unistd.h>
-#endif
-
-// https://github.com/sol-prog/ansi-escape-codes-windows-posix-terminals-c-programming-examples/blob/master/ansi_escapes.c
-#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
-#define ENABLE_VIRTUAL_TERMINAL_PROCESSING  0x0004
-#endif
-
-static HANDLE stdoutHandle, stdinHandle;
-static DWORD outModeInit, inModeInit;
-
-void setupConsole(void) {
-    DWORD outMode = 0, inMode = 0;
-    stdoutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    stdinHandle = GetStdHandle(STD_INPUT_HANDLE);
-
-    if (stdoutHandle == INVALID_HANDLE_VALUE || stdinHandle == INVALID_HANDLE_VALUE) {
-        exit(GetLastError());
-    }
-
-    if (!GetConsoleMode(stdoutHandle, &outMode) || !GetConsoleMode(stdinHandle, &inMode)) {
-        exit(GetLastError());
-    }
-
-    outModeInit = outMode;
-    inModeInit = inMode;
-
-    // Enable ANSI escape codes
-    outMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-    // Set stdin as no echo and unbuffered
-    inMode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
-
-    if (!SetConsoleMode(stdoutHandle, outMode) || !SetConsoleMode(stdinHandle, inMode)) {
-        exit(GetLastError());
-    }
-}
-
-
 
 /* Draws a game-board board[] of size boardDimensions to console with an offset by ofset
  */
