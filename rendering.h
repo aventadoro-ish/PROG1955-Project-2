@@ -12,13 +12,10 @@
 
 
 void drawBoard(const Board_t* b);
-void drawCursour(const Tuple2_t* coord); // TODO rename to moveCursour()
+void moveCursour(const Tuple2_t* coord);
 
-void drawFrame(Tuple2_t pos, Tuple2_t dim);
-void printText(Tuple2_t pos, char* str);
-
-
-void setupConsole(void);
+void drawFrame(Tuple2_t* pos, Tuple2_t* dim, int doReturnCursour);
+void printText(Tuple2_t* pos, char* str, int doReturnCurour);
 
 
 #endif
