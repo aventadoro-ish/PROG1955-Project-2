@@ -1,6 +1,4 @@
-
 #include "editor.h"
-
 
 
 int toggleCell(Board_t* b, Tuple2_t coord) {
@@ -15,6 +13,7 @@ int toggleCell(Board_t* b, Tuple2_t coord) {
 	b->boardArr[idx] = b->boardArr[idx] ^ mask;
 
 }
+
 
 int getCellTuple(const Board_t* b, Tuple2_t coord) {
 	unsigned int cellIdx = coordToCellIdx(coord);
@@ -37,6 +36,7 @@ int getCellInts(const Board_t* b, int x, int y) {
 
 	return (b->boardArr[idx] & mask) > 0;
 }
+
 
 int setCellInts(Board_t* b, int x, int y, int value) {
 	unsigned int cellIdx = y * BOARD_COLS + x;
@@ -79,7 +79,6 @@ int setCellTuple(Board_t* b, Tuple2_t coord, int value) {
 
 
 
-
 void fillZero(Board_t* b) {
 	for (int i = 0; i < BOARD_COLS * BOARD_ROWS / (sizeof(unsigned int) * 8); i++) {
 		b->boardArr[i] = 0;
@@ -104,6 +103,8 @@ void fillDiagonal(unsigned long long int board[], Tuple2_t dim) {
 
 	
 }
+
+
 
 int enterEditorMode(Board_t* b) {
 	Tuple2_t cursour = { 0, 0 };

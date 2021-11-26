@@ -10,6 +10,13 @@
 #define BOARD_COLS 96
 #define BOARD_ROWS 32
 
+#define CELL_ALIVE_CHAR '#'
+#define CELL_DEAD_CHAR ' '
+
+#define BOARD_SCREEN_OFFSET_X 2
+#define BOARD_SCREEN_OFFSET_Y 4
+
+
 #define FILENAME_MAX_LEN 64
 
 #define coordToCellIdx(coord) (unsigned int)coord.y * BOARD_COLS + coord.x
