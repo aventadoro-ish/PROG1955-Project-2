@@ -1,15 +1,16 @@
 #include "Project-2.h"
 #include "rendering.h"
+#include "utils.h"
+#include <stdlib.h>
+
+
 
 
 #ifndef EDITOR_H_INCLUDED
 #define EDITOR_H_INCLUDED
 
 
-/* malloc() memory for a board, prints error message if fails
- * returns pointer to  
- */
-Board_t* createBoard();
+
 
 int toggleCell(Board_t* b, unsigned int cellIdx);
 
