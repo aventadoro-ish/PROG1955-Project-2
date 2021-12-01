@@ -10,3 +10,8 @@ Board_t* createBoard() {
 	return board;
 
 }
+
+Tuple2_t intsToTuple(int x, int y) {
+	Tuple2_t tuple = { x, y };
+	return tuple;
+}

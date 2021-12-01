@@ -104,8 +104,6 @@ void fillDiagonal(unsigned long long int board[], Tuple2_t dim) {
 	
 }
 
-
-
 int enterEditorMode(Board_t* b) {
 	Tuple2_t cursour = { 0, 0 };
 	drawBoard(b);
@@ -114,7 +112,6 @@ int enterEditorMode(Board_t* b) {
 
 		if (_kbhit()) {
 			int cmd = _getch(); // not safe on other platforms
-
 			// exit
 			if (cmd == '\x1b') break;
 
@@ -135,8 +132,8 @@ int enterEditorMode(Board_t* b) {
 
 			} else if (cmd == 13) { // ENTER -> toggle cell
 				Tuple2_t coord = cursour;
-				coord.x -= OFFSET_X;
-				coord.y -= OFFSET_Y;
+				coord.x -= BOARD_SCREEN_OFFSET_X;
+				coord.y -= BOARD_SCREEN_OFFSET_Y;
 
 				unsigned int cellIdx = coordToCellIdx(coord);
 				toggleCell(b, coord);

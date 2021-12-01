@@ -1,20 +1,25 @@
+
+
+#ifndef UTILS_H
+
+#define UTILS_H
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h> // notice this! you need it! (windows)
 
 
-#ifndef UTILS_H
-#define UTILS_H
-
 #define BOARD_COLS 96
 #define BOARD_ROWS 32
+
+#define INFO_X 50
+#define INFO_Y BOARD_ROWS
 
 #define CELL_ALIVE_CHAR '#'
 #define CELL_DEAD_CHAR ' '
 
 #define BOARD_SCREEN_OFFSET_X 2
-#define BOARD_SCREEN_OFFSET_Y 4
+#define BOARD_SCREEN_OFFSET_Y 5
 
 
 #define FILENAME_MAX_LEN 64
@@ -40,5 +45,8 @@ typedef struct Board_t {
  * returns pointer to
  */
 Board_t* createBoard();
+
+Tuple2_t intsToTuple(int x, int y);
+
 
 #endif
