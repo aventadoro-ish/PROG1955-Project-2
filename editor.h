@@ -26,8 +26,12 @@ void fillChess(Board_t* b);
 // Doesn't work for now
 void fillDiagonal(unsigned long long int board[], Tuple2_t dim);
 
+// For main menu background animation 
+void fillStartPattern(Board_t* b);
+
+
 // Enter board editor mode to setup a board
-//	ENTER toggles selected cell ; [ASWD or arrow keys] move cursour around
+//	ENTER toggles selected cell ; [ASWD or arrow keys] move cursor around
 int enterEditorMode(Board_t* b);
 
 

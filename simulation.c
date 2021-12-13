@@ -18,8 +18,8 @@ int getNeighbours(const Board_t* b, int x, int y) {
 
 int simStep(Board_t* board, Board_t* cpy) {
 	// TOOD proper borders
-	for (int y = 1; y < BOARD_ROWS - 1; y++) {
-		for (int x = 1; x < BOARD_COLS - 1; x++) {
+	for (int y = 0; y < BOARD_ROWS; y++) {
+		for (int x = 0; x < BOARD_COLS; x++) {
 			int neighbours = getNeighbours(board, x, y);
 
 			//if (getCellInts(board, x, y)) {
