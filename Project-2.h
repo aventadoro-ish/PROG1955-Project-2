@@ -14,5 +14,15 @@ void mainMenu();
 void newGameStart();
 Board_t* simulation(Board_t* boardA, double timestep);
 
+int saveProcedure(Board_t* board);
+
+
+int promptMenuInt(char* promptText, int min, int max);
+char promptMenuChar(char* promptText, char* allowedChars);
+double promptMenuDouble(char* promptText, double min, double max);
+char* promptMenuStr(char* promptText, int maxLen);
+
+
+
 #endif
 

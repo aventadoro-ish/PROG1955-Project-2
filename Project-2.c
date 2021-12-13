@@ -2,6 +2,8 @@
 
 
 int main() {
+	printf("*charOccurrances = %d", charOccurrences("Hello!", 'l'));
+
 	printf("For this program to work correctly, You have to maximize console window.\n");
 	printf("Press any button, when You're ready...");
 	while (!_kbhit());
@@ -157,31 +159,40 @@ void mainMenu() {
 
 
 void newGameStart() {
-	printNewGameMenu();
-	Board_t* boardA = createBoard();
+	drawToMenuSection("\nNew Game\n"
+        "*use arrow keys or ASWD to move cursor\n"
+        "*use ENTER to toggle cell value\n"
+        "*press ESCAPE once to start simulation\n"
+		"*press ESCAPE second time to exit\n", 1);
 
-	fillZero(boardA);
+	Board_t* board = createBoard();
+	fillZero(board);
+	enterEditorMode(board);
 
-	enterEditorMode(boardA);
+	char c = promptMenuChar("Run Simulation? y/n", "yn");
 
-	// TODO simulation speed?
+	if (c == 'y') {
+		double simSpeedSeconds = promptMenuDouble("Enter timestep in seconds (0 <= x <= 60.0):", 0.0, 60.0);
 
-	boardA = simulation(boardA, 0.25);
-	// TODO prompt save or not?
+		board = simulation(board, simSpeedSeconds);
+	}
 
-	free(boardA);
-	return NULL;
+	c = promptMenuChar("Save board to file? y/n", "yn");
+	if (c == 'y') {
+		saveProcedure(board);
+	}
+
+	free(board);
 }
 
 Board_t* simulation(Board_t* boardA, double timestep) {
 	
-	Board_t* boardB = createBoard();
+	Board_t* boardB = copyBoard(boardA);
 	fillZero(boardB);
 
 	int isBoardAActive = 1;
 	int isRunning = 1;
 	clock_t lastStepTime = clock();
-
 
 
 	while (isRunning) {
@@ -216,4 +227,98 @@ Board_t* simulation(Board_t* boardA, double timestep) {
 		return boardB;
 	}
 
+}
+
+
+int saveProcedure(Board_t* board) {
+	char* saveName = promptMenuStr("Enter filename:", FILENAME_MAX);
+	if (saveName == NULL) {
+		drawToMenuSection("Filename error!", 0);
+		return 1;
+	}
+
+	strcpy(board->name, saveName);
+	free(saveName);
+
+	// TODO search for existing save with the same name
+	// assume no such save exists
+	time_t rawtime;
+	time(&rawtime);
+	board->timeLastEdited = *localtime(&rawtime);
+
+	// TODO actual save
+
+	drawToMenuSection("Save completed! Press any button!", 0);
+	while (!_kbhit());
+	_getch();
+
+	return 0;
+}
+
+
+int promptMenuInt(char* promptText, int min, int max) {
+	drawToMenuSection(promptText, 4);
+	int val;
+	printf("\x1B[s");
+
+	for (;;) {
+		scanf_s("%d", &val);
+		while (getchar() != '\n');
+
+		if (min <= val && val <= max) {
+			return val;
+		}
+		printf("\x1B[u");
+	}
+}
+
+char promptMenuChar(char* promptText, char* allowedChars) {
+	drawToMenuSection(promptText, 4);
+	char c;
+	printf("\x1B[s");
+
+	for (;;) {
+		scanf_s("%c", &c, 15);
+		while (getchar() != '\n');
+
+		if (charOccurrences(allowedChars, c) > 0) {
+			return c;
+
+		}
+		printf("\x1B[u");
+
+	}
+
+	return c;
+}
+
+double promptMenuDouble(char* promptText, double min, double max) {
+	drawToMenuSection(promptText, 4);
+	double val;
+	printf("\x1B[s");
+
+	for (;;) {
+		scanf_s("%lf", &val);
+		while (getchar() != '\n');
+
+		if (min <= val && val <= max) {
+			return val;
+		}
+		printf("\x1B[u");
+	}
+}
+
+// uses malloc()!
+char* promptMenuStr(char* promptText, int maxLen) {
+	char* str = (char*)malloc(sizeof(char) * ++maxLen);
+	if (str == NULL) return NULL;
+	drawToMenuSection(promptText, 4);
+	printf("\x1B[s");
+
+
+	scanf_s("%s", str, maxLen);
+
+	printf("\x1B[u");
+
+	return str;
 }

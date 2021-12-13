@@ -176,3 +176,48 @@ void printNewGameMenu() {
 
 }
 
+
+void drawToMenuSection(char* str, int cursorActionCode) {
+    Tuple2_t coord = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y };
+    
+    for (int i = 0; i < INFO_Y; i++) {
+        movecursor(&coord);
+        printf("%*c\n", INFO_X - 4, ' ');
+
+        coord.y++;
+    }
+
+    coord.x = BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2;
+    coord.y = BOARD_SCREEN_OFFSET_Y;
+
+    printText(&coord, str, 1);
+
+    switch (cursorActionCode) {
+    case 0:
+        break;
+
+    case 1:
+        movecursor(&coord);
+        break;
+
+    case 2:
+        coord.y++;
+        movecursor(&coord);
+        break;
+
+    case 3:
+        coord.y += charOccurrences(str, '\n');
+        movecursor(&coord);
+        break;
+        
+    case 4:
+        coord.y += charOccurrences(str, '\n') + 1;
+        movecursor(&coord);
+        break;
+
+    default:
+        break;
+    }
+
+
+}

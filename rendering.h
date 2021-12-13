@@ -14,5 +14,17 @@ void printText(Tuple2_t* pos, char* str, int doReturncursor);
 void drawScreenSections();
 void printTitle();
 void printMainMenu();
+void printNewGameMenu();
+
+/* cursorActionCode:
+ *  0 - do nothing
+ *  1 - put at the begining of menu
+ *  2 - put one below the begining
+ *  3 - put at the end
+ *  4 - put one below the end
+ *
+ */
+void drawToMenuSection(char* str, int doPutCursorToMenu);
+
 
 #endif

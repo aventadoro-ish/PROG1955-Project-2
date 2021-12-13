@@ -35,7 +35,7 @@ typedef struct Tuple2_t {
 
 typedef struct Board_t {
 	unsigned int boardArr[96]; // 96x32
-	char name[64];
+	char name[FILENAME_MAX_LEN];
 	struct tm timeCreated;
 	struct tm timeLastEdited;
 
@@ -46,7 +46,10 @@ typedef struct Board_t {
  */
 Board_t* createBoard();
 
+Board_t* copyBoard(Board_t* boardToCopy);
+
 Tuple2_t intsToTuple(int x, int y);
 
+int charOccurrences(char* str, char c);
 
 #endif
