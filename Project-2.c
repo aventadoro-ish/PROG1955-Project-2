@@ -1,77 +1,324 @@
-
 #include "Project-2.h"
 
 
-/*
- */
-
 int main() {
-	printf("Press any button...");
+	printf("*charOccurrances = %d", charOccurrences("Hello!", 'l'));
+
+	printf("For this program to work correctly, You have to maximize console window.\n");
+	printf("Press any button, when You're ready...");
 	while (!_kbhit());
 	_getch();
-
-
-	Tuple2_t pos = {OFFSET_X - 1, OFFSET_Y - 1};
-	Tuple2_t dim = {BOARD_COLS + 2, BOARD_ROWS + 2};
-
-	drawFrame(&pos, &dim, 0);
 	
-	Board_t* board = createBoard();
-	Board_t* boardB = createBoard();
+	Tuple2_t temp = { .x = 0, .y = 0 };
 
-	fillZero(board);
-	fillZero(boardB);
+	// erase caution info
+	movecursor(&temp);
+	printf("                                                                         \n"
+		   "                                                                         ");
 
-	//drawBoard(board);
-	enterEditorMode(board);
+	drawScreenSections();
+	printTitle();
 
 
-	for (;;) {
-		simStep(board, boardB);
-		drawBoard(boardB);
-		fillZero(board);
-
-		Sleep(500);
-
-		simStep(boardB, board);
-		drawBoard(board);
-		fillZero(boardB);
-
-		Sleep(500);
-
-	}
-
+	mainMenu();
 	
-
-	moveCursour(&dim);
-
-	
-
-
-	//fillZero(board, dim);
-	////fillDiagonal(board, dim);
-	//fillChess(board, dim);
-
-	//fillZero(boardB, dim);
+	temp.x = 0;
+	temp.y = BOARD_SCREEN_OFFSET_Y + BOARD_ROWS + 1;
+	movecursor(&temp);
 
 
-	//Tuple2_t boardPosition = {.x = 16, .y = 16};
-	//printf("*dim=(%2d,%2d)\n", dim.x, dim.y);
-	//simOneStep(board, dim, boardB);
-	//drawBoard(board, &dim, &boardPosition);
-	//Sleep(2000); // format is Sleep(x); where x is # of milliseconds.
-	//sleep(1);
+	//Board_t* board = createBoard();
+	//Board_t* boardB = createBoard();
+	//
+	//fillZero(board);
+	//fillZero(boardB);
+	//
+	////drawBoard(board);
+	//enterEditorMode(board);
+	//
 	//for (;;) {
-	//	// main loop goes here
+	//	simStep(board, boardB);
+	//	drawBoard(boardB);
+	//	fillZero(board);
+	//
+	//	//Sleep(500);
+	//
+	//	simStep(boardB, board);
+	//	fillZero(boardB);
+	//	drawBoard(board);
+	//
+	//	//Sleep(500);
+	//	if (_kbhit()) {
+	//		break;
+	//	}
 	//}
-	//drawBoard(boardB, &dim, &boardPosition);
 
 	return 0;
 }
 
-void sim_step(unsigned short int *board, unsigned int rows) {
-	for (unsigned int i = 0; i < rows; i++) {
-		printf("*\n");
+
+void mainMenu() {
+	printMainMenu();
+
+	Tuple2_t cursor = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y + 1 };
+
+	movecursor(&cursor);
+
+	clock_t lastWaitAnimation = clock();
+
+	Board_t* boardA = createBoard();
+	Board_t* boardB = createBoard();
+
+	fillZero(boardA);
+	fillZero(boardB);
+
+	drawBoard(boardA);
+
+	int isRunning = 1;
+	while (isRunning) {
+		clock_t curTime = clock();
+
+		if (_kbhit()) { // key press input
+
+			int cmd = _getch(); // not safe on other platforms?
+
+			switch (cmd) {
+			case '\x1b': {
+				isRunning = 0; // exit
+				break;
+			}
+			case 'w': {
+				--cursor.y;
+				movecursor(&cursor);
+				break;
+			}
+			case 's': {
+				++cursor.y;
+				movecursor(&cursor); 
+				break;
+			}
+			case 224: { // special char
+				cmd = _getch();
+
+				if (cmd == 72)		--cursor.y; // UP
+				else if (cmd == 80) ++cursor.y; // DOWN
+				else printf("**unknown modified keypress %d\n", cmd);
+
+				movecursor(&cursor);
+				break;
+			}
+			case 13: { // ENTER
+				unsigned int selectedPos = cursor.y - BOARD_SCREEN_OFFSET_Y;
+
+				switch (selectedPos) {
+				case 1: // newGame
+					newGameStart();
+					movecursor(&cursor);
+					printMainMenu();
+					break;
+				case 2: // Load
+					// Some action TODO
+					break;
+				case 3: // Exit
+					// Some other action TODO
+					isRunning = 0;
+					free(boardA);
+					free(boardB);
+					break;
+
+				default:
+					break;
+				}
+
+				break;
+			}
+
+
+			default:
+				printf("**unknown keypress %d\n", cmd);
+				break;
+			};
+
+		}
+
+		if (((double)curTime - lastWaitAnimation) / CLOCKS_PER_SEC > 1) { // idle animation
+			simStep(boardA, boardB);
+			drawBoard(boardB);
+			fillZero(boardA);
+
+
+			Board_t* temp = boardA;
+			boardA = boardB;
+			boardB = temp;
+
+			lastWaitAnimation = curTime;
+		}
+
 	}
 }
 
+
+void newGameStart() {
+	drawToMenuSection("\nNew Game\n"
+        "*use arrow keys or ASWD to move cursor\n"
+        "*use ENTER to toggle cell value\n"
+        "*press ESCAPE once to start simulation\n"
+		"*press ESCAPE second time to exit\n", 1);
+
+	Board_t* board = createBoard();
+	fillZero(board);
+	enterEditorMode(board);
+
+	char c = promptMenuChar("Run Simulation? y/n", "yn");
+
+	if (c == 'y') {
+		double simSpeedSeconds = promptMenuDouble("Enter timestep in seconds (0 <= x <= 60.0):", 0.0, 60.0);
+
+		board = simulation(board, simSpeedSeconds);
+	}
+
+	c = promptMenuChar("Save board to file? y/n", "yn");
+	if (c == 'y') {
+		saveProcedure(board);
+	}
+
+	free(board);
+}
+
+Board_t* simulation(Board_t* boardA, double timestep) {
+	
+	Board_t* boardB = copyBoard(boardA);
+	fillZero(boardB);
+
+	int isBoardAActive = 1;
+	int isRunning = 1;
+	clock_t lastStepTime = clock();
+
+
+	while (isRunning) {
+		clock_t curTime = clock();
+		if (((double)curTime - lastStepTime) / CLOCKS_PER_SEC > timestep) {
+			simStep(boardA, boardB);
+			drawBoard(boardB);
+			fillZero(boardA);
+
+			isBoardAActive = isBoardAActive ? 0 : 1; // toggle active board
+
+			Board_t* temp = boardA;
+			boardA = boardB;
+			boardB = temp;
+			
+			lastStepTime = curTime;
+		}
+
+		if (_kbhit()) {
+			if (_getch() == '\x1b') {
+				isRunning = 0;
+			}
+		}
+	}
+
+	if (isBoardAActive) {
+		free(boardB);
+		return boardA;
+
+	} else {
+		free(boardA);
+		return boardB;
+	}
+
+}
+
+
+int saveProcedure(Board_t* board) {
+	char* saveName = promptMenuStr("Enter filename:", FILENAME_MAX);
+	if (saveName == NULL) {
+		drawToMenuSection("Filename error!", 0);
+		return 1;
+	}
+
+	strcpy(board->name, saveName);
+	free(saveName);
+
+	// TODO search for existing save with the same name
+	// assume no such save exists
+	time_t rawtime;
+	time(&rawtime);
+	board->timeLastEdited = *localtime(&rawtime);
+
+	// TODO actual save
+
+	drawToMenuSection("Save completed! Press any button!", 0);
+	while (!_kbhit());
+	_getch();
+
+	return 0;
+}
+
+
+int promptMenuInt(char* promptText, int min, int max) {
+	drawToMenuSection(promptText, 4);
+	int val;
+	printf("\x1B[s");
+
+	for (;;) {
+		scanf_s("%d", &val);
+		while (getchar() != '\n');
+
+		if (min <= val && val <= max) {
+			return val;
+		}
+		printf("\x1B[u");
+	}
+}
+
+char promptMenuChar(char* promptText, char* allowedChars) {
+	drawToMenuSection(promptText, 4);
+	char c;
+	printf("\x1B[s");
+
+	for (;;) {
+		scanf_s("%c", &c, 15);
+		while (getchar() != '\n');
+
+		if (charOccurrences(allowedChars, c) > 0) {
+			return c;
+
+		}
+		printf("\x1B[u");
+
+	}
+
+	return c;
+}
+
+double promptMenuDouble(char* promptText, double min, double max) {
+	drawToMenuSection(promptText, 4);
+	double val;
+	printf("\x1B[s");
+
+	for (;;) {
+		scanf_s("%lf", &val);
+		while (getchar() != '\n');
+
+		if (min <= val && val <= max) {
+			return val;
+		}
+		printf("\x1B[u");
+	}
+}
+
+// uses malloc()!
+char* promptMenuStr(char* promptText, int maxLen) {
+	char* str = (char*)malloc(sizeof(char) * ++maxLen);
+	if (str == NULL) return NULL;
+	drawToMenuSection(promptText, 4);
+	printf("\x1B[s");
+
+
+	scanf_s("%s", str, maxLen);
+
+	printf("\x1B[u");
+
+	return str;
+}

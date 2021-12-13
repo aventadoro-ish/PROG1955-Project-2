@@ -27,6 +27,10 @@ int getCellTuple(const Board_t* b, Tuple2_t coord) {
 }
 
 int getCellInts(const Board_t* b, int x, int y) {
+	if (x < 0 || y < 0 || x >= BOARD_COLS || y >= BOARD_ROWS) {
+		return 0;
+	}
+
 	unsigned int cellIdx = y * BOARD_COLS + x;
 	unsigned int idx = cellIdx / (sizeof(unsigned int) * 8);
 	unsigned int bitPos = cellIdx % (sizeof(unsigned int) * 8);
@@ -104,39 +108,43 @@ void fillDiagonal(unsigned long long int board[], Tuple2_t dim) {
 	
 }
 
-
+void fillStartPattern(Board_t* b) {
+	// TODO this method
+	fillChess(b);
+}
 
 int enterEditorMode(Board_t* b) {
-	Tuple2_t cursour = { 0, 0 };
 	drawBoard(b);
+
+	Tuple2_t cursor = { BOARD_SCREEN_OFFSET_X, BOARD_SCREEN_OFFSET_Y };
+	movecursor(&cursor);
 
 	for (;;) {
 
 		if (_kbhit()) {
 			int cmd = _getch(); // not safe on other platforms
-
 			// exit
 			if (cmd == '\x1b') break;
 
-			else if (cmd == 'w') { --cursour.y; moveCursour(&cursour); } // UP
-			else if (cmd == 'a') { --cursour.x; moveCursour(&cursour); } // LEFT
-			else if (cmd == 'd') { ++cursour.x; moveCursour(&cursour); } // RIGHT
-			else if (cmd == 's') { ++cursour.y; moveCursour(&cursour); } // DOWN
+			else if (cmd == 'w') { --cursor.y; movecursor(&cursor); } // UP
+			else if (cmd == 'a') { --cursor.x; movecursor(&cursor); } // LEFT
+			else if (cmd == 'd') { ++cursor.x; movecursor(&cursor); } // RIGHT
+			else if (cmd == 's') { ++cursor.y; movecursor(&cursor); } // DOWN
 			else if (cmd == 224) {	// arrow keys modifier or something
 				cmd = _getch();
 
-				if (cmd == 72)		--cursour.y; // UP
-				else if (cmd == 75) --cursour.x; // LEFT
-				else if (cmd == 77) ++cursour.x; // RIGHT
-				else if (cmd == 80) ++cursour.y; // DOWN
+				if (cmd == 72)		--cursor.y; // UP
+				else if (cmd == 75) --cursor.x; // LEFT
+				else if (cmd == 77) ++cursor.x; // RIGHT
+				else if (cmd == 80) ++cursor.y; // DOWN
 				else printf("**unknown modified keypress %d\n", cmd);
 
-				moveCursour(&cursour);
+				movecursor(&cursor);
 
 			} else if (cmd == 13) { // ENTER -> toggle cell
-				Tuple2_t coord = cursour;
-				coord.x -= OFFSET_X;
-				coord.y -= OFFSET_Y;
+				Tuple2_t coord = cursor;
+				coord.x -= BOARD_SCREEN_OFFSET_X;
+				coord.y -= BOARD_SCREEN_OFFSET_Y;
 
 				unsigned int cellIdx = coordToCellIdx(coord);
 				toggleCell(b, coord);
