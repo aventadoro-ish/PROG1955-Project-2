@@ -2,8 +2,6 @@
 
 
 int main() {
-	printf("*charOccurrances = %d", charOccurrences("Hello!", 'l'));
-
 	printf("For this program to work correctly, You have to maximize console window.\n");
 	printf("Press any button, when You're ready...");
 	while (!_kbhit());
@@ -25,33 +23,6 @@ int main() {
 	temp.x = 0;
 	temp.y = BOARD_SCREEN_OFFSET_Y + BOARD_ROWS + 1;
 	movecursor(&temp);
-
-
-	//Board_t* board = createBoard();
-	//Board_t* boardB = createBoard();
-	//
-	//fillZero(board);
-	//fillZero(boardB);
-	//
-	////drawBoard(board);
-	//enterEditorMode(board);
-	//
-	//for (;;) {
-	//	simStep(board, boardB);
-	//	drawBoard(boardB);
-	//	fillZero(board);
-	//
-	//	//Sleep(500);
-	//
-	//	simStep(boardB, board);
-	//	fillZero(boardB);
-	//	drawBoard(board);
-	//
-	//	//Sleep(500);
-	//	if (_kbhit()) {
-	//		break;
-	//	}
-	//}
 
 	return 0;
 }
@@ -185,6 +156,24 @@ void newGameStart() {
 	free(board);
 }
 
+void loadSavesMenu() {
+	// TODO load from saved file
+	Board_t* savedBoards[5];
+
+	savedBoards[0] = createBoard();
+	savedBoards[1] = createBoard();
+	savedBoards[2] = createBoard();
+	savedBoards[3] = createBoard();
+	savedBoards[4] = NULL;
+
+	savedBoards[0].name = "Hello!";
+	
+
+
+
+}
+
+
 Board_t* simulation(Board_t* boardA, double timestep) {
 	
 	Board_t* boardB = copyBoard(boardA);
@@ -228,7 +217,6 @@ Board_t* simulation(Board_t* boardA, double timestep) {
 	}
 
 }
-
 
 int saveProcedure(Board_t* board) {
 	char* saveName = promptMenuStr("Enter filename:", FILENAME_MAX);
