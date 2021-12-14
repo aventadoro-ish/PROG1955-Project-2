@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h> // notice this! you need it! (windows)
-
+// add <str.h>
 
 #define BOARD_COLS 96
 #define BOARD_ROWS 32
@@ -51,5 +51,7 @@ Board_t* copyBoard(Board_t* boardToCopy);
 Tuple2_t intsToTuple(int x, int y);
 
 int charOccurrences(char* str, char c);
+
+int boardArrayLen(Board_t* arr[]);
 
 #endif

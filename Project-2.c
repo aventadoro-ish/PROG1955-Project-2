@@ -1,5 +1,7 @@
 #include "Project-2.h"
 
+#define MAIN_MENU_TEXT "Main menu:\n-New Game\n-Load\n-Exit\n"
+
 
 int main() {
 	printf("For this program to work correctly, You have to maximize console window.\n");
@@ -71,11 +73,15 @@ void mainMenu() {
 			case 224: { // special char
 				cmd = _getch();
 
-				if (cmd == 72)		--cursor.y; // UP
-				else if (cmd == 80) ++cursor.y; // DOWN
-				else printf("**unknown modified keypress %d\n", cmd);
+				if (cmd == 72) {
+					--cursor.y; // UP
+					movecursor(&cursor);
 
-				movecursor(&cursor);
+				} else if (cmd == 80) {
+					++cursor.y; // DOWN
+					movecursor(&cursor);
+				} else printf("**unknown modified keypress %d\n", cmd);
+
 				break;
 			}
 			case 13: { // ENTER
@@ -84,17 +90,19 @@ void mainMenu() {
 				switch (selectedPos) {
 				case 1: // newGame
 					newGameStart();
+					drawToMenuSection(MAIN_MENU_TEXT, 0);
 					movecursor(&cursor);
-					printMainMenu();
 					break;
+
 				case 2: // Load
-					// Some action TODO
+					loadSavesMenu();
+					drawToMenuSection(MAIN_MENU_TEXT, 0);
+					movecursor(&cursor);
 					break;
+
 				case 3: // Exit
 					// Some other action TODO
 					isRunning = 0;
-					free(boardA);
-					free(boardB);
 					break;
 
 				default:
@@ -126,6 +134,9 @@ void mainMenu() {
 		}
 
 	}
+
+	free(boardA);
+	free(boardB);
 }
 
 
@@ -140,18 +151,7 @@ void newGameStart() {
 	fillZero(board);
 	enterEditorMode(board);
 
-	char c = promptMenuChar("Run Simulation? y/n", "yn");
-
-	if (c == 'y') {
-		double simSpeedSeconds = promptMenuDouble("Enter timestep in seconds (0 <= x <= 60.0):", 0.0, 60.0);
-
-		board = simulation(board, simSpeedSeconds);
-	}
-
-	c = promptMenuChar("Save board to file? y/n", "yn");
-	if (c == 'y') {
-		saveProcedure(board);
-	}
+	board = selectBoard(board, 0, 1, 1);
 
 	free(board);
 }
@@ -166,11 +166,119 @@ void loadSavesMenu() {
 	savedBoards[3] = createBoard();
 	savedBoards[4] = NULL;
 
-	savedBoards[0].name = "Hello!";
-	
+	strcpy(savedBoards[0]->name, "Hello There!");
+	strcpy(savedBoards[1]->name, "General Kenobi");
+	strcpy(savedBoards[2]->name, "khe-khe");
+	strcpy(savedBoards[3]->name, "You are a bold one");
 
 
+	time_t rawtime;
 
+	time(&rawtime);
+	savedBoards[0]->timeCreated = *localtime(&rawtime);
+
+	time(&rawtime);
+	savedBoards[1]->timeCreated = *localtime(&rawtime);
+
+	time(&rawtime);
+	savedBoards[2]->timeCreated = *localtime(&rawtime);
+
+	time(&rawtime);
+	savedBoards[3]->timeCreated = *localtime(&rawtime);
+
+	fillZero(savedBoards[0]);
+	fillZero(savedBoards[2]);
+
+
+	int sortingMode = 0;
+	char sortingModeNames[][18] = { "alphabetic asc", "date created asc", "date created dec",
+							"date modified asc", "date modified dec"};
+
+	sortBoards(savedBoards, sortingMode);
+	printLoadMenu(savedBoards, sortingModeNames[sortingMode]);
+
+	Tuple2_t cursor = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y + 1 };
+	movecursor(&cursor);
+
+	int isRunning = 1;
+	int isCursorMoved = 0;
+
+	while (isRunning) {
+		clock_t curTime = clock();
+
+		if (_kbhit()) { // key press input
+
+			int cmd = _getch(); // not safe on other platforms?
+
+			switch (cmd) {
+			case '\x1b': {
+				isRunning = 0; // exit
+				break;
+			}
+			case 'w': {
+				--cursor.y;
+				movecursor(&cursor);
+				isCursorMoved = 1;
+				break;
+			}
+			case 's': {
+				++cursor.y;
+				movecursor(&cursor);
+				isCursorMoved = 1;
+				break;
+			}
+			case 224: { // special char
+				cmd = _getch();
+
+				if (cmd == 72) {
+					--cursor.y; // UP
+					isCursorMoved = 1;
+					movecursor(&cursor);
+
+				} else if (cmd == 80) {
+					++cursor.y; // DOWN
+					isCursorMoved = 1;
+					movecursor(&cursor);
+
+				} else printf("**unknown modified keypress %d\n", cmd);
+
+				break;
+			}
+			case 13: { // ENTER
+				unsigned int selectedPos = cursor.y - BOARD_SCREEN_OFFSET_Y;
+				if (selectedPos == 0) {
+					isRunning = 0;
+				} else if (selectedPos == 1) {
+					sortingMode = (sortingMode + 1) % 
+						(sizeof(sortingModeNames) / sizeof(sortingModeNames[0]));
+
+					sortBoards(savedBoards, sortingMode);
+					printLoadMenu(savedBoards, sortingModeNames[sortingMode]);
+
+				} else if (selectedPos - 3 <= boardArrayLen(savedBoards) - 1) {
+					selectBoard(savedBoards[selectedPos - 3], 1, 1, 1);
+
+				} else {
+					// do nothing
+				}
+
+				break;
+			}
+			default:
+				printf("**unknown keypress %d\n", cmd);
+				break;
+			};
+
+		}
+
+		if (isCursorMoved) {
+			int cursorRelPosY = cursor.y - BOARD_SCREEN_OFFSET_Y;
+			if (2 < cursorRelPosY && cursorRelPosY < 3 + boardArrayLen(savedBoards)) {
+				drawBoard(savedBoards[cursorRelPosY - 3]);
+			}
+			isCursorMoved = 0;
+		}
+	}
 }
 
 
@@ -234,6 +342,10 @@ int saveProcedure(Board_t* board) {
 	time(&rawtime);
 	board->timeLastEdited = *localtime(&rawtime);
 
+	Board_t* saveBoardArr[2] = { board, NULL };
+
+	saveBoard(saveBoardArr);
+
 	// TODO actual save
 
 	drawToMenuSection("Save completed! Press any button!", 0);
@@ -242,6 +354,40 @@ int saveProcedure(Board_t* board) {
 
 	return 0;
 }
+
+Board_t* selectBoard(Board_t* board, int doPromptEdit, int doPromptRun, int doPromptSave) {
+	char c;
+
+	if (doPromptEdit) {
+		c = promptMenuChar("Edit board? y/n", "yn");
+		if (c == 'y') {
+			enterEditorMode(board);
+
+		}
+	}
+
+	if (doPromptRun) {
+		c = promptMenuChar("Run Simulation? y/n", "yn");
+
+		if (c == 'y') {
+			double simSpeedSeconds = 
+				promptMenuDouble("Enter timestep in seconds (0 <= x <= 60.0):", 0.0, 60.0);
+
+			board = simulation(board, simSpeedSeconds);
+		}
+	}
+	
+	if (doPromptSave) {
+		c = promptMenuChar("Save board to file? y/n", "yn");
+		if (c == 'y') {
+			saveProcedure(board);
+		}
+	}
+
+	return board;
+}
+
+
 
 
 int promptMenuInt(char* promptText, int min, int max) {

@@ -52,3 +52,13 @@ int charOccurrences(char* str, char c) {
 
 	return count;
 }
+
+int boardArrayLen(Board_t* arr[]) {
+	int count = 0;
+
+	while (arr[count] != NULL) {
+		++count;
+	}
+
+	return count;
+}

@@ -150,7 +150,6 @@ void printTitle() {
 
 void printMainMenu() {
     Tuple2_t coord = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y };
-    // TODO redo using '\n' instead of separate printText() calls
     printText(&coord, "Main menu:                              \n"
         "-New Game                               \n"
         "-Load                                   \n"
@@ -176,6 +175,22 @@ void printNewGameMenu() {
 
 }
 
+void printLoadMenu(const Board_t* saveArr[], char* sortingModeName) {
+    char menuBuffer[512] = "-Return to Main Menu\n";
+    int busyLen = strlen(menuBuffer);
+
+    sprintf(menuBuffer + busyLen, "-Sort by: %35s\nLoaded saves:\n", sortingModeName);
+    busyLen = strlen(menuBuffer);
+
+
+
+    for (int i = 0; i < boardArrayLen(saveArr); i++) {
+        sprintf(menuBuffer + busyLen, "-%s\n", saveArr[i]->name);
+        busyLen += strlen(saveArr[i]->name) + 2;
+    }
+
+    drawToMenuSection(menuBuffer, 2);
+}
 
 void drawToMenuSection(char* str, int cursorActionCode) {
     Tuple2_t coord = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y };

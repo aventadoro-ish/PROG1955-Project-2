@@ -16,6 +16,9 @@ void printTitle();
 void printMainMenu();
 void printNewGameMenu();
 
+void printLoadMenu(const Board_t* saveArr[], char* sortingModeName);
+
+
 /* cursorActionCode:
  *  0 - do nothing
  *  1 - put at the begining of menu
