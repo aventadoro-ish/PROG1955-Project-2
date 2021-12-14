@@ -1,7 +1,7 @@
 #include "saves.h"
 
 
-void saveBoard(Board_t* saveBoards) { // when/how to name board?
+void saveBoard(Board_t* saveBoards) {
 
 	FILE* file = fopen("BoardSaves.txt", "w");
 	if (file != NULL) {
@@ -22,15 +22,9 @@ void saveBoard(Board_t* saveBoards) { // when/how to name board?
 
 		}
 
-	} else {
-
-		printf("File could not be saved.");
-
-	}
+	} 
 
 	fclose(file);
-
-	printf("File saved successfully.");
 
 }
 
@@ -56,11 +50,7 @@ int searchSaves(Board_t* searchThis) {
 
 	}
 
-	if (searchThis + count == NULL) {
-
-		printf("There is no file by that name");
-
-	}
+	return NULL;
 
 }
 
@@ -74,7 +64,7 @@ Board_t* sortBoards(Board_t* sortThis) {
 
 	}
 
-	qsort(sortThis, count, sizeof(Board_t), compareBoards);
+	qsort(sortThis, count, sizeof(Board_t*), compareBoards);
 
 	return sortThis;
 
@@ -86,25 +76,47 @@ int compareBoards(Board_t* boardA, Board_t* boardB) {
 
 }
 
-/*Board_t* openSave(int selection, Board_t* list) { // not the final version, just for reference
+Board_t* loadSaves() {
+	
+	int numberOfSaves = 0;
 
 	FILE* file = fopen("BoardSaves.txt", "r");
-	if (file != NULL) {
+	if (file != NULL) {		
 
-		fread(workingBoard, sizeof(Board_t), 1, file);
+		char test;
 
-		fclose(file);
+		while (test != EOF) {
+
+			fscanf("%c", test);
+
+			if (test == '\n') {
+
+				++numberOfSaves;
+
+			}
+
+		}
 
 	}
 
-	return workingBoard;
-
-}
-
-Board_t* loadSaves() {
-
 	Board_t* output = malloc(sizeof(Board_t) * (numberOfSaves + 1));
 
+	output[numberOfSaves + 1] = NULL;
 
+	if (file != NULL) {
+	
+		for (int i = 0; i < numberOfSaves; i++) {
 
-}*/
+			char buffer[11];
+
+			fscanf("%s ", buffer);
+
+			(output + i)->boardArr = (unsigned) buffer;
+
+		}
+
+	}
+
+	return output;
+
+}
