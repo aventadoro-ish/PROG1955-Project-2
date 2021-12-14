@@ -48,7 +48,7 @@ Board_t* createBoard();
 
 Board_t* createBoardCopy(Board_t* boardToCopy);
 
-int copyBoard(const Board_t* origin, Board_t* destination) {
+int copyBoard(const Board_t* origin, Board_t* destination);
 
 Tuple2_t intsToTuple(int x, int y);
 

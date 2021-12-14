@@ -140,7 +140,6 @@ void mainMenu(Board_t* savedBoardArr[]) {
 	free(boardB);
 }
 
-
 void newGameStart(Board_t* savedBoardArr[]) {
 	drawToMenuSection("\nNew Game\n"
         "*use arrow keys or ASWD to move cursor\n"
@@ -348,21 +347,17 @@ Board_t* simulation(Board_t* boardA, double timestep) {
 
 int saveProcedure(Board_t* board, Board_t* savedBoardArr[]) {
 	for (int i = 0; i < boardArrayLen(savedBoardArr); i++) {
-		if (strcmp(board->name, savedBoardArr[i]->name) == 0) {  // this save already exists
+		if (&board == &savedBoardArr[i]) {
 			char c = promptMenuChar("This board already exists.\nOverride? (y/n)", "yn");
 
 			if (c == 'y') {	// override
-				if (&board == &savedBoardArr[i]) {
-					// same instance, do nothing
-				} else {
-					copyBoard(board, savedBoardArr[i]);
-					//free(board); done outside this method
-				}
+				
+			} else {
+
 			}
 
 			break;
 		}
-
 	}
 
 	char* saveName = promptMenuStr("Enter filename:", FILENAME_MAX);

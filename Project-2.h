@@ -9,16 +9,19 @@
 #include "editor.h"
 
 
-void mainMenu(Board_t* savedBoardArr[]);
+void mainMenu(Board_t** savedBoardArr);
 
-void newGameStart(Board_t* savedBoardArr[]);
+void newGameStart(Board_t** savedBoardArr);
+
+void loadSavesMenu(Board_t** savedBoardArr);
+
+
 Board_t* simulation(Board_t* boardA, double timestep);
 
-int saveProcedure(Board_t* board, Board_t* savedBoardArr[]);
+int saveProcedure(Board_t* board, Board_t** savedBoardArr);
 
-void loadSavesMenu(Board_t* savedBoardArr[]);
+Board_t* selectBoard(Board_t* board, Board_t** savedBoardArr, int doPromptEdit, int doPromptRun, int doPromptSave);
 
-Board_t* selectBoard(Board_t* board, Board_t* savedBoardArr[], int doPromptEdit, int doPromptRun, int doPromptSave);
 
 int promptMenuInt(char* promptText, int min, int max);
 char promptMenuChar(char* promptText, char* allowedChars);
