@@ -77,6 +77,7 @@ int boardArrayLen(Board_t* arr[]) {
 	return count;
 }
 
+
 int indexCharInStr(char* str, char c) {
 	int i = 0;
 
@@ -87,4 +88,23 @@ int indexCharInStr(char* str, char c) {
 	}
 
 	return -1;
+
+Board_t* addNewBoard(Board_t* oldBoards[]) {
+
+	int oldLength = boardArrayLen(oldBoards);
+
+	Board_t* updatedBoardArr[] = malloc(sizeof(Board_t) * (oldLength + 2));
+
+	for (int i = 0; i <= oldLength; i++) {
+
+		updatedBoardArr[i] = oldBoards[i];
+
+	}
+
+	updatedBoardArr[oldLength + 1] = NULL;
+
+	free(oldBoards);
+
+	return updatedBoardArr;
+
 }
