@@ -1,6 +1,6 @@
 #include "Project-2.h"
 
-#define MAIN_MENU_TEXT "Main menu:\n-New Game\n-Load\n-Exit\n"
+#define MAIN_MENU_TEXT "Main menu:\n-New Game\n-Load\n-Delete\n-Exit\n"
 
 
 int main() {
@@ -32,7 +32,7 @@ int main() {
 
 
 void mainMenu(Board_t* savedBoardArr[]) {
-	printMainMenu();
+	drawToMenuSection(MAIN_MENU_TEXT, 0);
 
 	Tuple2_t cursor = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y + 1 };
 
@@ -90,18 +90,24 @@ void mainMenu(Board_t* savedBoardArr[]) {
 
 				switch (selectedPos) {
 				case 1: // newGame
-					newGameStart(savedBoardArr);
+					savedBoardArr = newGameStart(savedBoardArr);
 					drawToMenuSection(MAIN_MENU_TEXT, 0);
 					movecursor(&cursor);
 					break;
 
 				case 2: // Load
-					loadSavesMenu(savedBoardArr);
+					savedBoardArr = loadSavesMenu(savedBoardArr);
 					drawToMenuSection(MAIN_MENU_TEXT, 0);
 					movecursor(&cursor);
 					break;
 
-				case 3: // Exit
+				case 3:
+					savedBoardArr = loadDeleteSavesMenu(savedBoardArr);
+					drawToMenuSection(MAIN_MENU_TEXT, 0);
+					movecursor(&cursor);
+					break;
+
+				case 4: // Exit
 					// Some other action TODO
 					isRunning = 0;
 					break;
@@ -136,11 +142,19 @@ void mainMenu(Board_t* savedBoardArr[]) {
 
 	}
 
+	saveBoard(savedBoardArr);
+
+	for (int i = 0; i < boardArrayLen(savedBoardArr); i++) {
+		free(savedBoardArr[i]);
+	}
+
+	free(savedBoardArr);
+
 	free(boardA);
 	free(boardB);
 }
 
-void newGameStart(Board_t* savedBoardArr[]) {
+Board_t** newGameStart(Board_t* savedBoardArr[]) {
 	drawToMenuSection("\nNew Game\n"
         "*use arrow keys or ASWD to move cursor\n"
         "*use ENTER to toggle cell value\n"
@@ -151,62 +165,14 @@ void newGameStart(Board_t* savedBoardArr[]) {
 	fillZero(board);
 	enterEditorMode(board);
 
-	board = selectBoard(board, savedBoardArr, 0, 1, 1);
+	savedBoardArr = selectBoard(board, savedBoardArr, 0, 1, 1);
 
-	free(board);
+	//free(board);
+
+	return savedBoardArr;
 }
 
-void loadSavesMenu(Board_t* savedBoardArr[]) {
-
-	// TODO load from saved file
-	//Board_t* savedBoards[5];
-
-	//savedBoards[0] = createBoard();
-	//savedBoards[1] = createBoard();
-	//savedBoards[2] = createBoard();
-	//savedBoards[3] = createBoard();
-	//savedBoards[4] = NULL;
-
-	//strcpy(savedBoards[0]->name, "Hello There!");
-	//strcpy(savedBoards[1]->name, "General Kenobi");
-	//strcpy(savedBoards[2]->name, "khe-khe");
-	//strcpy(savedBoards[3]->name, "You are a bold one");
-
-
-	/*time_t rawtime;
-
-	time(&rawtime);
-	savedBoards[0]->timeCreated = *localtime(&rawtime);
-
-	time(&rawtime);
-	savedBoards[1]->timeCreated = *localtime(&rawtime);
-
-	time(&rawtime);
-	savedBoards[2]->timeCreated = *localtime(&rawtime);
-
-	time(&rawtime);
-	savedBoards[3]->timeCreated = *localtime(&rawtime);
-
-
-
-
-	time(&rawtime);
-	savedBoards[0]->timeLastEdited = *localtime(&rawtime);
-
-	time(&rawtime);
-	savedBoards[1]->timeLastEdited = *localtime(&rawtime);
-
-	time(&rawtime);
-	savedBoards[2]->timeLastEdited = *localtime(&rawtime);
-
-	time(&rawtime);
-	savedBoards[3]->timeLastEdited = *localtime(&rawtime);*/
-
-
-	//fillZero(savedBoards[0]);
-	//fillZero(savedBoards[2]);
-
-
+Board_t** loadSavesMenu(Board_t* savedBoardArr[]) {
 	int sortingMode = 0;
 	char sortingModeNames[][18] = { "alphabetic asc", "date created asc", "date created dec",
 							"date modified asc", "date modified dec"};
@@ -274,8 +240,8 @@ void loadSavesMenu(Board_t* savedBoardArr[]) {
 					sortBoards(savedBoardArr, sortingMode);
 					printLoadMenu(savedBoardArr, sortingModeNames[sortingMode]);
 
-				} else if (selectedPos - 3 <= boardArrayLen(savedBoardArr) - 1) {
-					selectBoard(savedBoardArr[selectedPos - 3], savedBoardArr, 1, 1, 1);
+				} else if (2 < selectedPos && selectedPos < 3 + boardArrayLen(savedBoardArr)) {
+					savedBoardArr = selectBoard(savedBoardArr[selectedPos - 3], savedBoardArr, 1, 1, 1);
 
 				} else {
 					// do nothing
@@ -298,7 +264,100 @@ void loadSavesMenu(Board_t* savedBoardArr[]) {
 			isCursorMoved = 0;
 		}
 	}
+
+	return savedBoardArr;
 }
+
+Board_t** loadDeleteSavesMenu(Board_t* savedBoardArr[]) {
+	printDeleteMenu(savedBoardArr);
+
+	Tuple2_t cursor = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y + 1 };
+	movecursor(&cursor);
+
+	int isRunning = 1;
+	int isCursorMoved = 0;
+
+	while (isRunning) {
+		clock_t curTime = clock();
+
+		if (_kbhit()) { // key press input
+
+			int cmd = _getch(); // not safe on other platforms?
+
+			switch (cmd) {
+			case '\x1b': {
+				isRunning = 0; // exit
+				break;
+			}
+			case 'w': {
+				--cursor.y;
+				movecursor(&cursor);
+				isCursorMoved = 1;
+				break;
+			}
+			case 's': {
+				++cursor.y;
+				movecursor(&cursor);
+				isCursorMoved = 1;
+				break;
+			}
+			case 224: { // special char
+				cmd = _getch();
+
+				if (cmd == 72) {
+					--cursor.y; // UP
+					isCursorMoved = 1;
+					movecursor(&cursor);
+
+				}
+				else if (cmd == 80) {
+					++cursor.y; // DOWN
+					isCursorMoved = 1;
+					movecursor(&cursor);
+
+				}
+				else printf("**unknown modified keypress %d\n", cmd);
+
+				break;
+			}
+			case 13: { // ENTER
+				unsigned int selectedPos = cursor.y - BOARD_SCREEN_OFFSET_Y;
+				if (selectedPos == 0) {
+					isRunning = 0;
+					saveBoard(savedBoardArr);
+
+				}
+				else if (1 < selectedPos && selectedPos < 2 + boardArrayLen(savedBoardArr)) {
+					savedBoardArr = deleteBoardProcedure(savedBoardArr[selectedPos - 2], savedBoardArr);
+					printDeleteMenu(savedBoardArr);
+
+				}
+				else {
+					printf("*%d", selectedPos);
+					// do nothing
+				}
+
+				break;
+			}
+			default:
+				printf("**unknown keypress %d\n", cmd);
+				break;
+			};
+
+		}
+
+		if (isCursorMoved) {
+			int cursorRelPosY = cursor.y - BOARD_SCREEN_OFFSET_Y;
+			if (2 < cursorRelPosY && cursorRelPosY < 3 + boardArrayLen(savedBoardArr)) {
+				drawBoard(savedBoardArr[cursorRelPosY - 3]);
+			}
+			isCursorMoved = 0;
+		}
+	}
+
+	return savedBoardArr;
+}
+
 
 
 Board_t* simulation(Board_t* boardA, double timestep) {
@@ -314,16 +373,19 @@ Board_t* simulation(Board_t* boardA, double timestep) {
 	while (isRunning) {
 		clock_t curTime = clock();
 		if (((double)curTime - lastStepTime) / CLOCKS_PER_SEC > timestep) {
-			simStep(boardA, boardB);
-			drawBoard(boardB);
-			fillZero(boardA);
+			if (isBoardAActive) {
+				simStep(boardA, boardB);
+				drawBoard(boardB);
+				fillZero(boardA);
+
+			} else {
+				simStep(boardB, boardA);
+				drawBoard(boardA);
+				fillZero(boardB);
+			}
 
 			isBoardAActive = isBoardAActive ? 0 : 1; // toggle active board
 
-			Board_t* temp = boardA;
-			boardA = boardB;
-			boardB = temp;
-			
 			lastStepTime = curTime;
 		}
 
@@ -334,50 +396,51 @@ Board_t* simulation(Board_t* boardA, double timestep) {
 		}
 	}
 
-	if (isBoardAActive) {
-		free(boardB);
-		return boardA;
-
-	} else {
-		free(boardA);
-		return boardB;
+	if (!isBoardAActive) {
+		copyBoard(boardB, boardA);
 	}
+
+	free(boardB);
+	return boardA;
 
 }
 
-int saveProcedure(Board_t* board, Board_t* savedBoardArr[]) {
+Board_t** saveProcedure(Board_t* board, Board_t* savedBoardArr[]) {
+	int isBoardIncludedInArray = 0;
+
 	for (int i = 0; i < boardArrayLen(savedBoardArr); i++) {
-		if (&board == &savedBoardArr[i]) {
-			char c = promptMenuChar("This board already exists.\nOverride? (y/n)", "yn");
+		char* a = board->name;
+		char* b = savedBoardArr[i]->name;
+		//int isInstanceMatch = board == savedBoardArr[i];
+		int isInstanceMatch = a == b;
 
-			if (c == 'y') {	// override
-				
-			} else {
 
-			}
-
+		if (isInstanceMatch) {
+			isBoardIncludedInArray = 1;
 			break;
 		}
 	}
 
-	char* saveName = promptMenuStr("Enter filename:", FILENAME_MAX);
-	if (saveName == NULL) {
-		drawToMenuSection("Filename error!", 0);
-		return 1;
+	if (!isBoardIncludedInArray) {
+		char* saveName = promptMenuStr("Enter save name:", FILENAME_MAX);
+		if (saveName == NULL) {
+			drawToMenuSection("Save name error!", 0);
+			return 1;
+		}
+
+		strcpy(board->name, saveName);
+		free(saveName);
+
+		savedBoardArr = addNewBoard(savedBoardArr, board);
 	}
 
-	strcpy(board->name, saveName);
-	free(saveName);
+	//time_t rawtime;
+	//time(&rawtime);
+	//board->timeLastEdited = *localtime(&rawtime);
 
-	// TODO search for existing save with the same name
-	// assume no such save exists
-	time_t rawtime;
-	time(&rawtime);
-	board->timeLastEdited = *localtime(&rawtime);
+	//Board_t* saveBoardArr[2] = { board, NULL };
 
-	Board_t* saveBoardArr[2] = { board, NULL };
-
-	saveBoard(saveBoardArr);
+	saveBoard(savedBoardArr);
 
 	// TODO actual save
 
@@ -385,10 +448,10 @@ int saveProcedure(Board_t* board, Board_t* savedBoardArr[]) {
 	while (!_kbhit());
 	_getch();
 
-	return 0;
+	return savedBoardArr;
 }
 
-Board_t* selectBoard(Board_t* board, Board_t* savedBoardArr[], int doPromptEdit, int doPromptRun, int doPromptSave) {
+Board_t** selectBoard(Board_t* board, Board_t* savedBoardArr[], int doPromptEdit, int doPromptRun, int doPromptSave) {
 	char c;
 
 	if (doPromptEdit) {
@@ -411,15 +474,46 @@ Board_t* selectBoard(Board_t* board, Board_t* savedBoardArr[], int doPromptEdit,
 	}
 	
 	if (doPromptSave) {
-		c = promptMenuChar("Save board to file? y/n", "yn");
+		c = promptMenuChar("Save board? y/n", "yn");
 		if (c == 'y') {
-			saveProcedure(board, savedBoardArr);
+			savedBoardArr = saveProcedure(board, savedBoardArr);
 		}
 	}
 
-	return board;
+	return savedBoardArr;
 }
 
+Board_t** deleteBoardProcedure(Board_t* board, Board_t* savedBoardArr[]) {
+	char c = promptMenuChar("Are you sure you want do delete it?", "yn");
+	if (c == 'n') return savedBoardArr;
+
+	int isBoardIncludedInArray = 0;
+
+	for (int i = 0; i < boardArrayLen(savedBoardArr); i++) {
+		char* a = board->name;
+		char* b = savedBoardArr[i]->name;
+		//int isInstanceMatch = board == savedBoardArr[i];
+		int isInstanceMatch = a == b;
+
+
+		if (isInstanceMatch) {
+			isBoardIncludedInArray = 1;
+			break;
+		}
+	}
+
+	if (!isBoardIncludedInArray) {
+		printf("Deleted~");
+		free(board);
+		return savedBoardArr;
+	}
+
+	savedBoardArr = deleteBoard(board, savedBoardArr);
+
+
+
+
+}
 
 
 

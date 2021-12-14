@@ -58,6 +58,7 @@ int boardArrayLen(Board_t* arr[]);
 
 int indexCharInStr(char* str, char c);
 
-Board_t* addNewBoard(Board_t* oldBoards[]);
+Board_t** addNewBoard(Board_t* oldBoards[], Board_t* boardToAdd);
+Board_t** deleteBoard(int idx, Board_t* oldBoards[]);
 
 #endif

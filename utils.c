@@ -31,6 +31,10 @@ Board_t* createBoardCopy(Board_t* boardToCopy) {
 		board->boardArr[i] = boardToCopy->boardArr[i];
 	}
 
+	time_t rawtime;
+	time(&rawtime);
+	board->timeCreated = *localtime(&rawtime);
+
 	return board;
 }
 
@@ -88,23 +92,53 @@ int indexCharInStr(char* str, char c) {
 	}
 
 	return -1;
+}
 
-Board_t* addNewBoard(Board_t* oldBoards[]) {
-
+Board_t** addNewBoard(Board_t* oldBoards[], Board_t* boardToAdd) {
 	int oldLength = boardArrayLen(oldBoards);
 
-	Board_t* updatedBoardArr[] = malloc(sizeof(Board_t) * (oldLength + 2));
-
-	for (int i = 0; i <= oldLength; i++) {
-
-		updatedBoardArr[i] = oldBoards[i];
-
+	Board_t** updatedBoardArr = malloc(sizeof(Board_t*) * (oldLength + 2));
+	if (updatedBoardArr == NULL) {
+		printf("malloc() error in utils.h->addNewBoard()");
+		return oldBoards;
 	}
 
+	for (int i = 0; i < oldLength; i++) {
+		updatedBoardArr[i] = oldBoards[i];
+	}
+
+	updatedBoardArr[oldLength] = boardToAdd;
 	updatedBoardArr[oldLength + 1] = NULL;
 
 	free(oldBoards);
 
 	return updatedBoardArr;
 
+}
+
+Board_t** deleteBoard(int idx, Board_t* oldBoards[]) {
+	int oldLength = boardArrayLen(oldBoards);
+
+	Board_t** updatedBoardArr = malloc(sizeof(Board_t*) * (oldLength));
+	if (updatedBoardArr == NULL) {
+		printf("malloc() error in utils.h->addNewBoard()");
+		return oldBoards;
+	}
+
+	int i = 0;
+	int newIdx = 0;
+	while (i < oldLength) {
+		if (i != idx) {
+			updatedBoardArr[newIdx] = oldBoards[i];
+			newIdx++;
+		}
+
+		i++;
+	}
+
+	updatedBoardArr[oldLength - 1] = NULL;
+
+	free(oldBoards);
+
+	return updatedBoardArr;
 }

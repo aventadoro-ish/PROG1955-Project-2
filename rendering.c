@@ -192,6 +192,19 @@ void printLoadMenu(const Board_t* saveArr[], char* sortingModeName) {
     drawToMenuSection(menuBuffer, 2);
 }
 
+void printDeleteMenu(const Board_t* savedBoardArr[]) {
+    char menuBuffer[512] = "-Return to Main Menu\nLoaded saves:\n";
+    int busyLen = strlen(menuBuffer);
+
+    for (int i = 0; i < boardArrayLen(savedBoardArr); i++) {
+        sprintf(menuBuffer + busyLen, "-%s\n", savedBoardArr[i]->name);
+        busyLen += strlen(savedBoardArr[i]->name) + 2;
+    }
+
+    drawToMenuSection(menuBuffer, 2);
+
+}
+
 void drawToMenuSection(char* str, int cursorActionCode) {
     Tuple2_t coord = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y };
     

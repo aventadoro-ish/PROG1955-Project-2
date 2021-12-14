@@ -1,6 +1,12 @@
 #include "editor.h"
 
 
+void timeEditStampUpdate(Board_t* b) {
+	time_t rawtime;
+	time(&rawtime);
+	b->timeLastEdited = *localtime(&rawtime);
+}
+
 int toggleCell(Board_t* b, Tuple2_t coord) {
 	unsigned int cellIdx = coordToCellIdx(coord);
 	unsigned int idx = cellIdx / (sizeof(unsigned int) * 8);
@@ -11,7 +17,7 @@ int toggleCell(Board_t* b, Tuple2_t coord) {
 
 
 	b->boardArr[idx] = b->boardArr[idx] ^ mask;
-
+	timeEditStampUpdate(b);
 }
 
 
@@ -60,6 +66,7 @@ int setCellInts(Board_t* b, int x, int y, int value) {
 		b->boardArr[idx] = b->boardArr[idx] & ~mask;
 
 	}
+	timeEditStampUpdate(b);
 
 }
 
@@ -78,6 +85,7 @@ int setCellTuple(Board_t* b, Tuple2_t coord, int value) {
 		b->boardArr[idx] = b->boardArr[idx] & ~mask;
 
 	}
+	timeEditStampUpdate(b);
 
 }
 
@@ -87,6 +95,9 @@ void fillZero(Board_t* b) {
 	for (int i = 0; i < BOARD_COLS * BOARD_ROWS / (sizeof(unsigned int) * 8); i++) {
 		b->boardArr[i] = 0;
 	}
+
+	timeEditStampUpdate(b);
+
 }
 
 void fillChess(Board_t* b) {
@@ -100,17 +111,23 @@ void fillChess(Board_t* b) {
 			b->boardArr[y] = mask << 1;
 		}
 	}
+
+	timeEditStampUpdate(b);
+
 }
 
 void fillDiagonal(unsigned long long int board[], Tuple2_t dim) {
 	// TODO
 
-	
+	//timeEditStampUpdate(b);
+
 }
 
 void fillStartPattern(Board_t* b) {
 	// TODO this method
 	fillChess(b);
+	timeEditStampUpdate(b);
+
 }
 
 int enterEditorMode(Board_t* b) {
@@ -159,4 +176,6 @@ int enterEditorMode(Board_t* b) {
 
 
 	}
+	timeEditStampUpdate(b);
+
 }

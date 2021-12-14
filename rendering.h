@@ -15,6 +15,7 @@ void drawScreenSections();
 void printTitle();
 void printMainMenu();
 void printNewGameMenu();
+void printDeleteMenu(const Board_t* savedBoardArr[]);
 
 void printLoadMenu(const Board_t* saveArr[], char* sortingModeName);
 
