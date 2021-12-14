@@ -6,41 +6,114 @@ int compareBoardByTimeCreatedDes(Board_t* boardA, Board_t* boardB);
 int compareBoardByTimeLastEditedAsc(Board_t* boardA, Board_t* boardB);
 int compareBoardByTimeLastEditedDes(Board_t* boardA, Board_t* boardB);
 
-// saves an array of board_t* pointers
-void saveBoard(Board_t* saveBoards[]) { // when/how to name board?
 
+void saveBoardArr(Board_t* savedBoardsArr[]) { // when/how to name board?
 	FILE* file = fopen("BoardSaves.txt", "w");
+
 	if (file != NULL) {
 
+		// for each board in the savedBoardsArr
+		for (int i = 0; i < boardArrayLen(savedBoardsArr); i++) {
 
-		for (int i = 0; i < boardArrayLen(saveBoards); i++) {
-			for (int ii = 0; ii < 96; ii++) {
-				fprintf(file, "%08x ", saveBoards[i]->boardArr[ii]);
+			// first save each unsigned int as space-separated hex words
+			for (int ii = 0; ii < BOARD_INT_ARRAY_SIZE; ii++) {
+				fprintf(file, "%08x ", savedBoardsArr[i]->boardArr[ii]);
 			}
-			fprintf(file, "| %s |", saveBoards[i]->name);
 
+			// then save board name
+			fprintf(file, "| %s |", savedBoardsArr[i]->name);
+			
+			// format and save time created
 			char buffer[128];
-			strftime(buffer, 26, "%Y:%m:%d %H:%M:%S", &(saveBoards[i]->timeCreated));
+			strftime(buffer, 26, "%Y:%m:%d %H:%M:%S", &(savedBoardsArr[i]->timeCreated));
 			fprintf(file, " %s |", buffer);
 
-			strftime(buffer, 26, "%Y:%m:%d %H:%M:%S", &(saveBoards[i]->timeLastEdited));
+			// format and save time last edited
+			strftime(buffer, 26, "%Y:%m:%d %H:%M:%S", &(savedBoardsArr[i]->timeLastEdited));
 			fprintf(file, " %s\n", buffer);
 
+			// repeat for each board
 		}
 
-		
-	} else {
+		fclose(file);
 
+
+	} else {
 		printf("File could not be saved.");
 
 	}
+}
 
-	fclose(file);
+Board_t* loadSavedBoardArr() {
+	// find how many saves there are in the file by counting '\n'
+	int numberOfSaves = 0;
+
+	FILE* file = fopen("BoardSaves.txt", "r");
+	if (file != NULL) {
+		char test;
+
+		while (!feof(file)) { // while EOF not reached
+			test = fgetc(file); // read single char
+
+			if (test == '\n') {
+				++numberOfSaves;
+			}
+		}
+
+		fclose(file);
+	}
+
+
+	// allocate space for array of saves
+	Board_t** output = malloc(sizeof(Board_t*) * (numberOfSaves + 1));
+	if (output == NULL) {
+		return NULL;
+	}
+
+	file = fopen("BoardSaves.txt", "r");
+	
+	// add NULL-terminator
+	output[numberOfSaves] = NULL;
+
+	if (file != NULL) {
+
+		for (int i = 0; i < numberOfSaves; i++) {
+			Board_t* thisBoard = malloc(sizeof(Board_t));
+			output[i] = thisBoard;
+
+			for (int ii = 0; ii < 96; ii++) {
+				fscanf(file, "%x ", &(thisBoard->boardArr[ii]));
+
+			}
+
+			char readBuffer[256];
+
+			fscanf(file, "%[^\n]", readBuffer);
+
+			int idxS = indexCharInStr(readBuffer, '|');
+			int idxE = indexCharInStr(&readBuffer[idxS + 1], '|');
+
+			strncpy(thisBoard->name, readBuffer + idxS + 2, idxE - idxS - 2);
+			thisBoard->name[idxE - 2] = 0;
+
+			// TODO debug time parsing
+			thisBoard->timeCreated = scanForDateTime(readBuffer + idxE + 3, "%Y:%m:%d %H:%M:%S");
+			
+			idxS = indexCharInStr(&readBuffer[idxE + 1], '|');
+
+			// TODO debug time parsing
+			thisBoard->timeLastEdited = scanForDateTime(readBuffer + idxS, "%Y:%m:%d %H:%M:%S");
+
+		}
+
+	}
+
+	return output;
 
 }
 
 
-// search in an array of board_t* pointers and return
+
 int searchSaves(Board_t* searchThis) {
 
 	int count = 0;
@@ -151,76 +224,3 @@ int compareBoards(Board_t* boardA, Board_t* boardB) {
 
 }
 
-Board_t* loadSaves() {
-
-	int numberOfSaves = 0;
-
-	FILE* file = fopen("BoardSaves.txt", "r");
-	if (file != NULL) {
-
-		char test = ' ';
-
-		while (!feof(file)) {
-			test = fgetc(file);
-
-			if (test == '\n') {
-				++numberOfSaves;
-			}
-
-		}
-
-		fclose(file);
-
-	}
-
-
-	Board_t** output = malloc(sizeof(Board_t*) * (numberOfSaves + 1));
-	if (output == NULL) {
-		return NULL;
-	}
-
-	file = fopen("BoardSaves.txt", "r");
-	// TODO add NULL check
-	output[numberOfSaves] = NULL;
-
-	if (file != NULL) {
-
-		for (int i = 0; i < numberOfSaves; i++) {
-			Board_t* thisBoard = malloc(sizeof(Board_t));
-			output[i] = thisBoard;
-
-			for (int ii = 0; ii < 96; ii++) {
-				fscanf(file, "%x ", &(thisBoard->boardArr[ii]));
-
-			}
-
-			char readBuffer[256];
-
-			fscanf(file, "%[^\n]", readBuffer);
-			
-			int idxS = indexCharInStr(readBuffer, '|');
-			int idxE = indexCharInStr(&readBuffer[idxS+1], '|');
-
-			strncpy(thisBoard->name, readBuffer + idxS + 2, idxE - idxS - 2);
-			thisBoard->name[idxE - 2] = 0;
-
-			// TODO time parsing
-			time_t rawtime;
-
-			time(&rawtime);
-			thisBoard->timeCreated = *localtime(&rawtime);
-
-			time(&rawtime);
-			thisBoard->timeLastEdited = *localtime(&rawtime);
-
-			//printf("%*s", offset, readBuffer);
-
-			//(output + i)->boardArr = (unsigned)buffer;
-
-		}
-
-	}
-
-	return output;
-
-}

@@ -142,3 +142,25 @@ Board_t** deleteBoard(int idx, Board_t* oldBoards[]) {
 
 	return updatedBoardArr;
 }
+
+
+struct tm scanForDateTime(char* buffer, char* format) {
+	// TODO refactoring
+	time_t result = 0;
+	int year = 0, month = 0, day = 0, hour = 0, min = 0;
+
+	if (sscanf(buffer, format, &year, &month, &day, &hour, &min) == 5) {
+		struct tm breakdown = { 0 };
+		breakdown.tm_year = year - 1900; /* years since 1900 */
+		breakdown.tm_mon = month - 1;
+		breakdown.tm_mday = day;
+		breakdown.tm_hour = hour;
+		breakdown.tm_min = min;
+
+		return breakdown;
+	}
+
+	time_t rawtime;
+	time(&rawtime);
+	return *localtime(&rawtime);
+}

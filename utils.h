@@ -22,7 +22,9 @@
 #define BOARD_SCREEN_OFFSET_Y 5
 
 
-#define FILENAME_MAX_LEN 64
+#define SAME_NAME_MAX_LEN 64
+#define BOARD_INT_ARRAY_SIZE 96
+
 
 #define coordToCellIdx(coord) (unsigned int)coord.y * BOARD_COLS + coord.x
 #define cellIdxToCoord(cellIdx) Tuple2_t coord = {coord.y = cellId / dim.x, coord.x = cellId - coord.y * dim.x}
@@ -34,12 +36,13 @@ typedef struct Tuple2_t {
 } Tuple2_t;
 
 typedef struct Board_t {
-	unsigned int boardArr[96]; // 96x32
-	char name[FILENAME_MAX_LEN];
+	unsigned int boardArr[BOARD_INT_ARRAY_SIZE]; // 96x32
+	char name[SAME_NAME_MAX_LEN];
 	struct tm timeCreated;
 	struct tm timeLastEdited;
 
 } Board_t;
+
 
 /* malloc() memory for a board, prints error message if fails
  * returns pointer to
@@ -60,5 +63,7 @@ int indexCharInStr(char* str, char c);
 
 Board_t** addNewBoard(Board_t* oldBoards[], Board_t* boardToAdd);
 Board_t** deleteBoard(int idx, Board_t* oldBoards[]);
+
+struct tm scanForDateTime(char* buffer, char* format);
 
 #endif

@@ -19,7 +19,7 @@ int main() {
 	drawScreenSections();
 	printTitle();
 
-	Board_t** savedBoardArr = loadSaves();
+	Board_t** savedBoardArr = loadSavedBoardArr();
 
 	mainMenu(savedBoardArr);
 	
@@ -142,7 +142,7 @@ void mainMenu(Board_t* savedBoardArr[]) {
 
 	}
 
-	saveBoard(savedBoardArr);
+	saveBoardArr(savedBoardArr);
 
 	for (int i = 0; i < boardArrayLen(savedBoardArr); i++) {
 		free(savedBoardArr[i]);
@@ -231,7 +231,7 @@ Board_t** loadSavesMenu(Board_t* savedBoardArr[]) {
 				unsigned int selectedPos = cursor.y - BOARD_SCREEN_OFFSET_Y;
 				if (selectedPos == 0) {
 					isRunning = 0;
-					saveBoard(savedBoardArr);
+					saveBoardArr(savedBoardArr);
 
 				} else if (selectedPos == 1) {
 					sortingMode = (sortingMode + 1) % 
@@ -324,7 +324,7 @@ Board_t** loadDeleteSavesMenu(Board_t* savedBoardArr[]) {
 				unsigned int selectedPos = cursor.y - BOARD_SCREEN_OFFSET_Y;
 				if (selectedPos == 0) {
 					isRunning = 0;
-					saveBoard(savedBoardArr);
+					saveBoardArr(savedBoardArr);
 
 				}
 				else if (1 < selectedPos && selectedPos < 2 + boardArrayLen(savedBoardArr)) {
@@ -440,7 +440,7 @@ Board_t** saveProcedure(Board_t* board, Board_t* savedBoardArr[]) {
 
 	//Board_t* saveBoardArr[2] = { board, NULL };
 
-	saveBoard(savedBoardArr);
+	saveBoardArr(savedBoardArr);
 
 	// TODO actual save
 
