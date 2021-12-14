@@ -54,4 +54,6 @@ int charOccurrences(char* str, char c);
 
 int boardArrayLen(Board_t* arr[]);
 
+Board_t* addNewBoard(Board_t* oldBoards[]);
+
 #endif
