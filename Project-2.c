@@ -19,8 +19,9 @@ int main() {
 	drawScreenSections();
 	printTitle();
 
+	Board_t** savedBoardArr = loadSaves();
 
-	mainMenu();
+	mainMenu(savedBoardArr);
 	
 	temp.x = 0;
 	temp.y = BOARD_SCREEN_OFFSET_Y + BOARD_ROWS + 1;
@@ -30,7 +31,7 @@ int main() {
 }
 
 
-void mainMenu() {
+void mainMenu(Board_t* savedBoardArr[]) {
 	printMainMenu();
 
 	Tuple2_t cursor = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y + 1 };
@@ -89,13 +90,13 @@ void mainMenu() {
 
 				switch (selectedPos) {
 				case 1: // newGame
-					newGameStart();
+					newGameStart(savedBoardArr);
 					drawToMenuSection(MAIN_MENU_TEXT, 0);
 					movecursor(&cursor);
 					break;
 
 				case 2: // Load
-					loadSavesMenu();
+					loadSavesMenu(savedBoardArr);
 					drawToMenuSection(MAIN_MENU_TEXT, 0);
 					movecursor(&cursor);
 					break;
@@ -140,7 +141,7 @@ void mainMenu() {
 }
 
 
-void newGameStart() {
+void newGameStart(Board_t* savedBoardArr[]) {
 	drawToMenuSection("\nNew Game\n"
         "*use arrow keys or ASWD to move cursor\n"
         "*use ENTER to toggle cell value\n"
@@ -151,28 +152,29 @@ void newGameStart() {
 	fillZero(board);
 	enterEditorMode(board);
 
-	board = selectBoard(board, 0, 1, 1);
+	board = selectBoard(board, savedBoardArr, 0, 1, 1);
 
 	free(board);
 }
 
-void loadSavesMenu() {
+void loadSavesMenu(Board_t* savedBoardArr[]) {
+
 	// TODO load from saved file
-	Board_t* savedBoards[5];
+	//Board_t* savedBoards[5];
 
-	savedBoards[0] = createBoard();
-	savedBoards[1] = createBoard();
-	savedBoards[2] = createBoard();
-	savedBoards[3] = createBoard();
-	savedBoards[4] = NULL;
+	//savedBoards[0] = createBoard();
+	//savedBoards[1] = createBoard();
+	//savedBoards[2] = createBoard();
+	//savedBoards[3] = createBoard();
+	//savedBoards[4] = NULL;
 
-	strcpy(savedBoards[0]->name, "Hello There!");
-	strcpy(savedBoards[1]->name, "General Kenobi");
-	strcpy(savedBoards[2]->name, "khe-khe");
-	strcpy(savedBoards[3]->name, "You are a bold one");
+	//strcpy(savedBoards[0]->name, "Hello There!");
+	//strcpy(savedBoards[1]->name, "General Kenobi");
+	//strcpy(savedBoards[2]->name, "khe-khe");
+	//strcpy(savedBoards[3]->name, "You are a bold one");
 
 
-	time_t rawtime;
+	/*time_t rawtime;
 
 	time(&rawtime);
 	savedBoards[0]->timeCreated = *localtime(&rawtime);
@@ -186,16 +188,32 @@ void loadSavesMenu() {
 	time(&rawtime);
 	savedBoards[3]->timeCreated = *localtime(&rawtime);
 
-	fillZero(savedBoards[0]);
-	fillZero(savedBoards[2]);
+
+
+
+	time(&rawtime);
+	savedBoards[0]->timeLastEdited = *localtime(&rawtime);
+
+	time(&rawtime);
+	savedBoards[1]->timeLastEdited = *localtime(&rawtime);
+
+	time(&rawtime);
+	savedBoards[2]->timeLastEdited = *localtime(&rawtime);
+
+	time(&rawtime);
+	savedBoards[3]->timeLastEdited = *localtime(&rawtime);*/
+
+
+	//fillZero(savedBoards[0]);
+	//fillZero(savedBoards[2]);
 
 
 	int sortingMode = 0;
 	char sortingModeNames[][18] = { "alphabetic asc", "date created asc", "date created dec",
 							"date modified asc", "date modified dec"};
 
-	sortBoards(savedBoards, sortingMode);
-	printLoadMenu(savedBoards, sortingModeNames[sortingMode]);
+	sortBoards(savedBoardArr, sortingMode);
+	printLoadMenu(savedBoardArr, sortingModeNames[sortingMode]);
 
 	Tuple2_t cursor = { BOARD_SCREEN_OFFSET_X + BOARD_COLS + 2, BOARD_SCREEN_OFFSET_Y + 1 };
 	movecursor(&cursor);
@@ -248,15 +266,17 @@ void loadSavesMenu() {
 				unsigned int selectedPos = cursor.y - BOARD_SCREEN_OFFSET_Y;
 				if (selectedPos == 0) {
 					isRunning = 0;
+					saveBoard(savedBoardArr);
+
 				} else if (selectedPos == 1) {
 					sortingMode = (sortingMode + 1) % 
 						(sizeof(sortingModeNames) / sizeof(sortingModeNames[0]));
 
-					sortBoards(savedBoards, sortingMode);
-					printLoadMenu(savedBoards, sortingModeNames[sortingMode]);
+					sortBoards(savedBoardArr, sortingMode);
+					printLoadMenu(savedBoardArr, sortingModeNames[sortingMode]);
 
-				} else if (selectedPos - 3 <= boardArrayLen(savedBoards) - 1) {
-					selectBoard(savedBoards[selectedPos - 3], 1, 1, 1);
+				} else if (selectedPos - 3 <= boardArrayLen(savedBoardArr) - 1) {
+					selectBoard(savedBoardArr[selectedPos - 3], savedBoardArr, 1, 1, 1);
 
 				} else {
 					// do nothing
@@ -273,8 +293,8 @@ void loadSavesMenu() {
 
 		if (isCursorMoved) {
 			int cursorRelPosY = cursor.y - BOARD_SCREEN_OFFSET_Y;
-			if (2 < cursorRelPosY && cursorRelPosY < 3 + boardArrayLen(savedBoards)) {
-				drawBoard(savedBoards[cursorRelPosY - 3]);
+			if (2 < cursorRelPosY && cursorRelPosY < 3 + boardArrayLen(savedBoardArr)) {
+				drawBoard(savedBoardArr[cursorRelPosY - 3]);
 			}
 			isCursorMoved = 0;
 		}
@@ -284,7 +304,7 @@ void loadSavesMenu() {
 
 Board_t* simulation(Board_t* boardA, double timestep) {
 	
-	Board_t* boardB = copyBoard(boardA);
+	Board_t* boardB = createBoardCopy(boardA);
 	fillZero(boardB);
 
 	int isBoardAActive = 1;
@@ -326,7 +346,25 @@ Board_t* simulation(Board_t* boardA, double timestep) {
 
 }
 
-int saveProcedure(Board_t* board) {
+int saveProcedure(Board_t* board, Board_t* savedBoardArr[]) {
+	for (int i = 0; i < boardArrayLen(savedBoardArr); i++) {
+		if (strcmp(board->name, savedBoardArr[i]->name) == 0) {  // this save already exists
+			char c = promptMenuChar("This board already exists.\nOverride? (y/n)", "yn");
+
+			if (c == 'y') {	// override
+				if (&board == &savedBoardArr[i]) {
+					// same instance, do nothing
+				} else {
+					copyBoard(board, savedBoardArr[i]);
+					//free(board); done outside this method
+				}
+			}
+
+			break;
+		}
+
+	}
+
 	char* saveName = promptMenuStr("Enter filename:", FILENAME_MAX);
 	if (saveName == NULL) {
 		drawToMenuSection("Filename error!", 0);
@@ -355,7 +393,7 @@ int saveProcedure(Board_t* board) {
 	return 0;
 }
 
-Board_t* selectBoard(Board_t* board, int doPromptEdit, int doPromptRun, int doPromptSave) {
+Board_t* selectBoard(Board_t* board, Board_t* savedBoardArr[], int doPromptEdit, int doPromptRun, int doPromptSave) {
 	char c;
 
 	if (doPromptEdit) {
@@ -380,7 +418,7 @@ Board_t* selectBoard(Board_t* board, int doPromptEdit, int doPromptRun, int doPr
 	if (doPromptSave) {
 		c = promptMenuChar("Save board to file? y/n", "yn");
 		if (c == 'y') {
-			saveProcedure(board);
+			saveProcedure(board, savedBoardArr);
 		}
 	}
 

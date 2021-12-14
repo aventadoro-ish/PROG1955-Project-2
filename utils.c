@@ -17,7 +17,7 @@ Board_t* createBoard() {
 	return board;
 }
 
-Board_t* copyBoard(Board_t* boardToCopy) {
+Board_t* createBoardCopy(Board_t* boardToCopy) {
 	Board_t* board = createBoard();
 	if (board == NULL) {
 		return NULL;
@@ -32,6 +32,20 @@ Board_t* copyBoard(Board_t* boardToCopy) {
 	}
 
 	return board;
+}
+
+int copyBoard(const Board_t* origin, Board_t* destination) {
+	// TODO error code
+	strcpy(destination->name, origin->name);
+	
+	for (int i = 0; i < 96; i++) {
+		destination->boardArr[i] = origin->boardArr[i];
+	}
+
+	destination->timeCreated = origin->timeCreated;
+	destination->timeLastEdited = origin->timeLastEdited;
+
+	return 0;
 }
 
 
@@ -61,4 +75,16 @@ int boardArrayLen(Board_t* arr[]) {
 	}
 
 	return count;
+}
+
+int indexCharInStr(char* str, char c) {
+	int i = 0;
+
+	while (str[i] != NULL) {
+		char ch = str[i];
+		if (ch == c) return i;
+		++i;
+	}
+
+	return -1;
 }
