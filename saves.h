@@ -6,7 +6,10 @@
 
 /* Prototypes for the functions */
 
-void saveBoard(Board_t* saveBoards);
+void saveBoard(Board_t* saveBoards[]);
+Board_t* loadSaves();
+
+
 int compareBoards(Board_t* boardA, Board_t* boardB);
 
 /* sortBy:

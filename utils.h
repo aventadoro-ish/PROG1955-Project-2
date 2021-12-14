@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h> // notice this! you need it! (windows)
-// add <str.h>
+#include <string.h>
 
 #define BOARD_COLS 96
 #define BOARD_ROWS 32
@@ -46,13 +46,17 @@ typedef struct Board_t {
  */
 Board_t* createBoard();
 
-Board_t* copyBoard(Board_t* boardToCopy);
+Board_t* createBoardCopy(Board_t* boardToCopy);
+
+int copyBoard(const Board_t* origin, Board_t* destination);
 
 Tuple2_t intsToTuple(int x, int y);
 
 int charOccurrences(char* str, char c);
 
 int boardArrayLen(Board_t* arr[]);
+
+int indexCharInStr(char* str, char c);
 
 Board_t* addNewBoard(Board_t* oldBoards[]);
 
