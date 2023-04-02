@@ -6,7 +6,7 @@ Current features are:
 - Simulation with various timestep
 - Saving and loading boards
 - Build-in board editor
-- "Console" rendering using ANSI escape codes 
+- Console rendering using ANSI escape codes 
 
 Authors:
  - Matvey R.
