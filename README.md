@@ -11,6 +11,3 @@ Current features are:
 Authors:
  - Matvey R.
  - Joel T.
-
-spreadsheet:
-https://docs.google.com/spreadsheets/d/1CnEvnxKB612rEfpsqL6FJx81-g2vmSngJzfdedS-c8c/edit?usp=sharing
